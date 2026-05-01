@@ -1,5 +1,6 @@
+import os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 class TextEditor:
     def __init__(self, root):
@@ -48,6 +49,7 @@ class TextEditor:
         self.root.bind("<Control-z>", self.undo_event)
         self.root.bind("<Control-y>", self.redo_event)
         self.root.bind("<Control-s>", self.save_event)
+        self.root.bind("<Control-a>", self.select_all_event)
 
         # menu
         self.menu = tk.Menu(root)
@@ -58,6 +60,8 @@ class TextEditor:
 
         file_menu.add_command(label="Open", command=self.open_file)
         file_menu.add_command(label="Save", command=self.save_file)
+        file_menu.add_command(label="Rename", command=self.rename_file)
+        file_menu.add_command(label="Delete", command=self.delete_file)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=root.quit)
 
@@ -210,6 +214,12 @@ class TextEditor:
         self.save_file()
         return "break"
 
+    def select_all_event(self, event=None):
+        self.text_area.tag_add(tk.SEL, "1.0", tk.END)
+        self.text_area.mark_set(tk.INSERT, "1.0")
+        self.text_area.see(tk.INSERT)
+        return "break"
+
     # search
     def search_text(self, event=None):
         self.text_area.tag_remove("highlight", "1.0", tk.END)
@@ -248,6 +258,44 @@ class TextEditor:
         else:
             self.search_frame.pack(fill="x")
             self.search_entry.focus()
+
+    def rename_file(self):
+        if not self.current_file:
+            self.log("RENAME_FAILED_NO_FILE")
+            return
+
+        new_name = filedialog.asksaveasfilename()
+
+        if not new_name:
+            self.log("RENAME_CANCELLED")
+            return
+
+        try:
+            os.rename(self.current_file, new_name)
+            self.log(f"RENAME: {self.current_file} -> {new_name}")
+            self.current_file = new_name
+        except Exception as e:
+            self.log("RENAME_ERROR: " + str(e))
+
+    def delete_file(self):
+        if not self.current_file:
+            self.log("DELETE_FAILED_NO_FILE")
+            return
+
+        confirm = messagebox.askyesno("Confirm Delete", "Delete this file?")
+
+        if not confirm:
+            self.log("DELETE_CANCELLED")
+            return
+
+        try:
+            os.remove(self.current_file)
+            self.log("DELETE_FILE: " + self.current_file)
+
+            self.text_area.delete(1.0, tk.END)
+            self.current_file = None
+        except Exception as e:
+            self.log("DELETE_ERROR: " + str(e))
 
 
 if __name__ == "__main__":
