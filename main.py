@@ -21,11 +21,17 @@ class TextEditor:
         # text area
         self.text_area = tk.Text(root, wrap="word")
         self.text_area.pack(expand=True, fill="both")
+        # analytics status bar
+        self.analytics_label = tk.Label(
+            root,
+            text="Words: 0 | Characters: 0 | Lines: 0",
+            anchor="w"
+        )
+        self.analytics_label.pack(fill="x", side="bottom")
 
-        # IMPORTANT: capture edits safely
-        self.text_area.bind("<KeyRelease>", self.capture_state)
+        self.text_area.bind("<KeyRelease>", self.on_key_event)
 
-        # keyboard shortcuts (MUST return None-safe)
+        # keyboard shortcuts 
         self.root.bind("<Control-z>", self.undo_event)
         self.root.bind("<Control-y>", self.redo_event)
 
@@ -47,6 +53,11 @@ class TextEditor:
         edit_menu.add_command(label="Undo", command=self.undo)
         edit_menu.add_command(label="Redo", command=self.redo)
 
+
+    def on_key_event(self, event):
+        self.capture_state()
+        self.update_analytics()
+
     def log(self, action):
         from datetime import datetime
 
@@ -55,7 +66,7 @@ class TextEditor:
         with open("log.txt", "a") as f:
             f.write(f"[{time}] {action}\n")
 
-    # ---------------- STATE CAPTURE ----------------
+    # state capture
     def capture_state(self, event=None):
         current = self.text_area.get(1.0, tk.END).rstrip()
 
@@ -68,7 +79,20 @@ class TextEditor:
         if len(self.undo_stack) > 100:
             self.undo_stack.pop(0)
 
-    # ---------------- UNDO CORE ----------------
+
+    # analytics update
+    def update_analytics(self, event=None):
+        content = self.text_area.get("1.0", "end-1c")
+
+        words = len(content.split())
+        chars = len(content)
+        lines = content.count("\n") + 1
+
+        self.analytics_label.config(
+            text=f"Words: {words} | Characters: {chars} | Lines: {lines}"
+    )
+
+    # undo
     def undo(self):
         if len(self.undo_stack) > 1:
             current = self.text_area.get(1.0, tk.END).rstrip()
@@ -79,13 +103,13 @@ class TextEditor:
             self.text_area.delete(1.0, tk.END)
             self.text_area.insert(tk.END, self.undo_stack[-1])
 
-    # event wrapper (CRITICAL)
+    # event wrapper
     def undo_event(self, event):
         self.undo()
         self.log("UNDO")
         return "break"
 
-    # ---------------- REDO CORE ----------------
+    # redo
     def redo(self):
         if self.redo_stack:
             current = self.text_area.get(1.0, tk.END).rstrip()
@@ -97,12 +121,12 @@ class TextEditor:
             self.text_area.insert(tk.END, next_state)
             self.log("REDO")
 
-    # event wrapper (CRITICAL)
+    # event wrapper 
     def redo_event(self, event):
         self.redo()
         return "break"
 
-    # ---------------- FILE OPS ----------------
+    # open
     def open_file(self):
         file_path = filedialog.askopenfilename()
 
@@ -115,7 +139,7 @@ class TextEditor:
 
         file_name = file_path.split("/")[-1]
 
-        # 🧠 MEMORY MANAGEMENT
+        # MEMORY MANAGEMENT
         if file_name not in self.memory:
 
             if len(self.memory_order) >= self.MEMORY_LIMIT:
@@ -135,7 +159,7 @@ class TextEditor:
 
         self.log("OPEN_FILE: " + file_path)
 
-    
+    # save file
 
     def save_file(self):
         if self.current_file:
