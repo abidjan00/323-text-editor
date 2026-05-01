@@ -21,6 +21,7 @@ class TextEditor:
         # text area
         self.text_area = tk.Text(root, wrap="word")
         self.text_area.pack(expand=True, fill="both")
+
         # analytics status bar
         self.analytics_label = tk.Label(
             root,
@@ -53,6 +54,26 @@ class TextEditor:
         edit_menu.add_command(label="Undo", command=self.undo)
         edit_menu.add_command(label="Redo", command=self.redo)
 
+        # VIEW MENU
+        view_menu = tk.Menu(self.menu, tearoff=0)
+        self.menu.add_cascade(label="View", menu=view_menu)
+        view_menu.add_command(label="Toggle Search", command=self.toggle_search)
+
+        # search bar (hidden initially)
+        self.search_frame = tk.Frame(self.root)
+
+        self.search_entry = tk.Entry(self.search_frame)
+        self.search_entry.pack(side="left", fill="x", expand=True)
+
+        self.search_button = tk.Button(
+            self.search_frame,
+            text="Search",
+            command=self.search_text
+        )
+        self.search_button.pack(side="right")
+
+        # shortcut
+        self.root.bind("<Control-f>", self.focus_search)
 
     def on_key_event(self, event):
         self.capture_state()
@@ -79,7 +100,6 @@ class TextEditor:
         if len(self.undo_stack) > 100:
             self.undo_stack.pop(0)
 
-
     # analytics update
     def update_analytics(self, event=None):
         content = self.text_area.get("1.0", "end-1c")
@@ -90,7 +110,7 @@ class TextEditor:
 
         self.analytics_label.config(
             text=f"Words: {words} | Characters: {chars} | Lines: {lines}"
-    )
+        )
 
     # undo
     def undo(self):
@@ -160,7 +180,6 @@ class TextEditor:
         self.log("OPEN_FILE: " + file_path)
 
     # save file
-
     def save_file(self):
         if self.current_file:
             with open(self.current_file, "w", encoding="utf-8") as f:
@@ -172,6 +191,44 @@ class TextEditor:
                     f.write(self.text_area.get(1.0, tk.END))
                 self.current_file = path
                 self.log("SAVE_FILE: " + path)
+
+    # search
+    def search_text(self):
+        self.text_area.tag_remove("highlight", "1.0", tk.END)
+
+        query = self.search_entry.get()
+
+        if not query:
+            return
+
+        start = "1.0"
+
+        while True:
+            start = self.text_area.search(query, start, stopindex=tk.END)
+
+            if not start:
+                break
+
+            end = f"{start}+{len(query)}c"
+
+            self.text_area.tag_add("highlight", start, end)
+            start = end
+
+        self.text_area.tag_config("highlight", background="#ffb6c1")
+
+    def focus_search(self, event=None):
+        if not self.search_frame.winfo_ismapped():
+            self.search_frame.pack(fill="x")
+
+        self.search_entry.focus()
+        return "break"
+
+    def toggle_search(self):
+        if self.search_frame.winfo_ismapped():
+            self.search_frame.pack_forget()
+        else:
+            self.search_frame.pack(fill="x")
+            self.search_entry.focus()
 
 
 if __name__ == "__main__":
