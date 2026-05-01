@@ -47,6 +47,7 @@ class TextEditor:
         # keyboard shortcuts 
         self.root.bind("<Control-z>", self.undo_event)
         self.root.bind("<Control-y>", self.redo_event)
+        self.root.bind("<Control-s>", self.save_event)
 
         # menu
         self.menu = tk.Menu(root)
@@ -76,6 +77,7 @@ class TextEditor:
 
         self.search_entry = tk.Entry(self.search_frame)
         self.search_entry.pack(side="left", fill="x", expand=True)
+        self.search_entry.bind("<Return>", self.search_text)
 
         self.search_button = tk.Button(
             self.search_frame,
@@ -204,8 +206,12 @@ class TextEditor:
                 self.current_file = path
                 self.log("SAVE_FILE: " + path)
 
+    def save_event(self, event=None):
+        self.save_file()
+        return "break"
+
     # search
-    def search_text(self):
+    def search_text(self, event=None):
         self.text_area.tag_remove("highlight", "1.0", tk.END)
 
         query = self.search_entry.get()
@@ -227,6 +233,7 @@ class TextEditor:
             start = end
 
         self.text_area.tag_config("highlight", background="#ffb6c1")
+        return "break"
 
     def focus_search(self, event=None):
         if not self.search_frame.winfo_ismapped():
