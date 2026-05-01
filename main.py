@@ -13,6 +13,7 @@ class TextEditor:
         self.redo_stack = []
 
         self.current_file = None
+        self.dark_mode = tk.BooleanVar(value=False)
 
         # ram simulation
         self.memory = {}
@@ -20,22 +21,22 @@ class TextEditor:
         self.MEMORY_LIMIT = 5
 
         # text area + scrollbar container
-        text_frame = tk.Frame(root)
-        text_frame.pack(expand=True, fill="both")
+        self.text_frame = tk.Frame(root)
+        self.text_frame.pack(expand=True, fill="both")
 
-        scrollbar = tk.Scrollbar(text_frame)
-        scrollbar.pack(side="right", fill="y")
+        self.scrollbar = tk.Scrollbar(self.text_frame)
+        self.scrollbar.pack(side="right", fill="y")
 
         self.autosave_file = "autosave.txt"
 
         self.text_area = tk.Text(
-            text_frame,
+            self.text_frame,
             wrap="word",
-            yscrollcommand=scrollbar.set
+            yscrollcommand=self.scrollbar.set
         )
         self.text_area.pack(side="left", expand=True, fill="both")
 
-        scrollbar.config(command=self.text_area.yview)
+        self.scrollbar.config(command=self.text_area.yview)
 
         # analytics status bar
         self.analytics_label = tk.Label(
@@ -60,26 +61,31 @@ class TextEditor:
         self.menu = tk.Menu(root)
         root.config(menu=self.menu)
 
-        file_menu = tk.Menu(self.menu, tearoff=0)
-        self.menu.add_cascade(label="File", menu=file_menu)
+        self.file_menu = tk.Menu(self.menu, tearoff=0)
+        self.menu.add_cascade(label="File", menu=self.file_menu)
 
-        file_menu.add_command(label="Open", command=self.open_file)
-        file_menu.add_command(label="Save", command=self.save_file)
-        file_menu.add_command(label="Rename", command=self.rename_file)
-        file_menu.add_command(label="Delete", command=self.delete_file)
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=root.quit)
+        self.file_menu.add_command(label="Open", command=self.open_file)
+        self.file_menu.add_command(label="Save", command=self.save_file)
+        self.file_menu.add_command(label="Rename", command=self.rename_file)
+        self.file_menu.add_command(label="Delete", command=self.delete_file)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Exit", command=root.quit)
 
-        edit_menu = tk.Menu(self.menu, tearoff=0)
-        self.menu.add_cascade(label="Edit", menu=edit_menu)
+        self.edit_menu = tk.Menu(self.menu, tearoff=0)
+        self.menu.add_cascade(label="Edit", menu=self.edit_menu)
 
-        edit_menu.add_command(label="Undo", command=self.undo)
-        edit_menu.add_command(label="Redo", command=self.redo)
+        self.edit_menu.add_command(label="Undo", command=self.undo)
+        self.edit_menu.add_command(label="Redo", command=self.redo)
 
         # VIEW MENU
-        view_menu = tk.Menu(self.menu, tearoff=0)
-        self.menu.add_cascade(label="View", menu=view_menu)
-        view_menu.add_command(label="Toggle Search", command=self.toggle_search)
+        self.view_menu = tk.Menu(self.menu, tearoff=0)
+        self.menu.add_cascade(label="View", menu=self.view_menu)
+        self.view_menu.add_command(label="Search", command=self.toggle_search)
+        self.view_menu.add_checkbutton(
+            label="Dark Mode",
+            variable=self.dark_mode,
+            command=self.apply_theme
+        )
 
         # search bar (hidden initially)
         self.search_frame = tk.Frame(self.root)
@@ -98,12 +104,71 @@ class TextEditor:
         # shortcut
         self.root.bind("<Control-f>", self.focus_search)
 
+        self.apply_theme()
         self.check_recovery()
         self.start_autosave()
 
     def on_key_event(self, event):
         self.capture_state()
         self.update_analytics()
+
+    def apply_theme(self):
+        if self.dark_mode.get():
+            colors = {
+                "window": "#1f1f1f",
+                "editor": "#252526",
+                "text": "#f2f2f2",
+                "muted": "#d0d0d0",
+                "field": "#2d2d30",
+                "button": "#3a3a3d",
+                "select": "#5a4b57",
+                "insert": "#ffffff"
+            }
+        else:
+            colors = {
+                "window": "#f0f0f0",
+                "editor": "#ffffff",
+                "text": "#000000",
+                "muted": "#000000",
+                "field": "#ffffff",
+                "button": "#f0f0f0",
+                "select": "#c7d8ff",
+                "insert": "#000000"
+            }
+
+        self.root.config(bg=colors["window"])
+        self.text_frame.config(bg=colors["window"])
+        self.search_frame.config(bg=colors["window"])
+        self.analytics_label.config(
+            bg=colors["window"],
+            fg=colors["muted"]
+        )
+        self.text_area.config(
+            bg=colors["editor"],
+            fg=colors["text"],
+            insertbackground=colors["insert"],
+            selectbackground=colors["select"],
+            selectforeground=colors["text"]
+        )
+        self.search_entry.config(
+            bg=colors["field"],
+            fg=colors["text"],
+            insertbackground=colors["insert"]
+        )
+        self.search_button.config(
+            bg=colors["button"],
+            fg=colors["text"],
+            activebackground=colors["field"],
+            activeforeground=colors["text"]
+        )
+
+        for menu in (self.menu, self.file_menu, self.edit_menu, self.view_menu):
+            menu.config(
+                bg=colors["window"],
+                fg=colors["text"],
+                activebackground=colors["field"],
+                activeforeground=colors["text"]
+            )
 
     def log(self, action):
         from datetime import datetime
