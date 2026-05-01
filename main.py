@@ -18,9 +18,21 @@ class TextEditor:
         self.memory_order = []
         self.MEMORY_LIMIT = 5
 
-        # text area
-        self.text_area = tk.Text(root, wrap="word")
-        self.text_area.pack(expand=True, fill="both")
+        # text area + scrollbar container
+        text_frame = tk.Frame(root)
+        text_frame.pack(expand=True, fill="both")
+
+        scrollbar = tk.Scrollbar(text_frame)
+        scrollbar.pack(side="right", fill="y")
+
+        self.text_area = tk.Text(
+            text_frame,
+            wrap="word",
+            yscrollcommand=scrollbar.set
+        )
+        self.text_area.pack(side="left", expand=True, fill="both")
+
+        scrollbar.config(command=self.text_area.yview)
 
         # analytics status bar
         self.analytics_label = tk.Label(
