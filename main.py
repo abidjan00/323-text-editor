@@ -14,15 +14,63 @@ class TextEditor:
 
         self.current_file = None
         self.dark_mode = tk.BooleanVar(value=False)
+        self.sidebar_visible = tk.BooleanVar(value=True)
+        self.explorer_path = os.path.expanduser("~")
+        self.explorer_items = []
 
         # ram simulation
         self.memory = {}
         self.memory_order = []
         self.MEMORY_LIMIT = 5
 
+        # main content area
+        self.main_frame = tk.Frame(root)
+        self.main_frame.pack(expand=True, fill="both")
+
+        # sidebar explorer
+        self.sidebar_frame = tk.Frame(self.main_frame, width=180)
+        self.sidebar_frame.pack(side="left", fill="y")
+        self.sidebar_frame.pack_propagate(False)
+
+        self.sidebar_header = tk.Frame(self.sidebar_frame)
+        self.sidebar_header.pack(fill="x")
+
+        self.sidebar_label = tk.Label(
+            self.sidebar_header,
+            text=self.explorer_path,
+            anchor="w"
+        )
+        self.sidebar_label.pack(side="left", fill="x", expand=True)
+
+        self.up_button = tk.Button(
+            self.sidebar_header,
+            text="Up",
+            command=self.go_up_folder
+        )
+        self.up_button.pack(side="right")
+
+        self.refresh_button = tk.Button(
+            self.sidebar_header,
+            text="Refresh",
+            command=self.refresh_explorer
+        )
+        self.refresh_button.pack(side="right")
+
+        self.file_listbox = tk.Listbox(self.sidebar_frame, activestyle="none")
+        self.file_listbox.pack(side="left", fill="both", expand=True)
+        self.file_listbox.bind("<Double-Button-1>", self.open_selected_file)
+        self.file_listbox.bind("<Return>", self.open_selected_file)
+
+        self.explorer_scrollbar = tk.Scrollbar(
+            self.sidebar_frame,
+            command=self.file_listbox.yview
+        )
+        self.explorer_scrollbar.pack(side="right", fill="y")
+        self.file_listbox.config(yscrollcommand=self.explorer_scrollbar.set)
+
         # text area + scrollbar container
-        self.text_frame = tk.Frame(root)
-        self.text_frame.pack(expand=True, fill="both")
+        self.text_frame = tk.Frame(self.main_frame)
+        self.text_frame.pack(side="left", expand=True, fill="both")
 
         self.scrollbar = tk.Scrollbar(self.text_frame)
         self.scrollbar.pack(side="right", fill="y")
@@ -82,6 +130,11 @@ class TextEditor:
         self.menu.add_cascade(label="View", menu=self.view_menu)
         self.view_menu.add_command(label="Search", command=self.toggle_search)
         self.view_menu.add_checkbutton(
+            label="Explorer",
+            variable=self.sidebar_visible,
+            command=self.toggle_sidebar
+        )
+        self.view_menu.add_checkbutton(
             label="Dark Mode",
             variable=self.dark_mode,
             command=self.apply_theme
@@ -104,6 +157,7 @@ class TextEditor:
         # shortcut
         self.root.bind("<Control-f>", self.focus_search)
 
+        self.refresh_explorer()
         self.apply_theme()
         self.check_recovery()
         self.start_autosave()
@@ -137,11 +191,36 @@ class TextEditor:
             }
 
         self.root.config(bg=colors["window"])
+        self.main_frame.config(bg=colors["window"])
         self.text_frame.config(bg=colors["window"])
+        self.sidebar_frame.config(bg=colors["window"])
+        self.sidebar_header.config(bg=colors["window"])
         self.search_frame.config(bg=colors["window"])
+        self.sidebar_label.config(
+            bg=colors["window"],
+            fg=colors["muted"]
+        )
         self.analytics_label.config(
             bg=colors["window"],
             fg=colors["muted"]
+        )
+        self.file_listbox.config(
+            bg=colors["field"],
+            fg=colors["text"],
+            selectbackground=colors["select"],
+            selectforeground=colors["text"]
+        )
+        self.refresh_button.config(
+            bg=colors["button"],
+            fg=colors["text"],
+            activebackground=colors["field"],
+            activeforeground=colors["text"]
+        )
+        self.up_button.config(
+            bg=colors["button"],
+            fg=colors["text"],
+            activebackground=colors["field"],
+            activeforeground=colors["text"]
         )
         self.text_area.config(
             bg=colors["editor"],
@@ -177,6 +256,65 @@ class TextEditor:
 
         with open("log.txt", "a") as f:
             f.write(f"[{time}] {action}\n")
+
+    def refresh_explorer(self):
+        self.file_listbox.delete(0, tk.END)
+        self.explorer_items = []
+        self.sidebar_label.config(text=self.explorer_path)
+
+        try:
+            entries = os.listdir(self.explorer_path)
+        except Exception as e:
+            self.log("EXPLORER_ERROR: " + str(e))
+            return
+
+        folders = []
+        files = []
+
+        for name in entries:
+            path = os.path.join(self.explorer_path, name)
+
+            if os.path.isdir(path):
+                folders.append((name, path))
+            elif os.path.isfile(path):
+                files.append((name, path))
+
+        for name, path in sorted(folders, key=lambda item: item[0].lower()):
+            self.explorer_items.append(path)
+            self.file_listbox.insert(tk.END, "[D] " + name)
+
+        for name, path in sorted(files, key=lambda item: item[0].lower()):
+            self.explorer_items.append(path)
+            self.file_listbox.insert(tk.END, "[F] " + name)
+
+    def open_selected_file(self, event=None):
+        selected = self.file_listbox.curselection()
+
+        if not selected:
+            return "break"
+
+        selected_path = self.explorer_items[selected[0]]
+
+        if os.path.isdir(selected_path):
+            self.explorer_path = selected_path
+            self.refresh_explorer()
+        else:
+            self.load_file(selected_path)
+
+        return "break"
+
+    def go_up_folder(self):
+        parent = os.path.dirname(self.explorer_path)
+
+        if parent and parent != self.explorer_path:
+            self.explorer_path = parent
+            self.refresh_explorer()
+
+    def toggle_sidebar(self):
+        if self.sidebar_visible.get():
+            self.sidebar_frame.pack(side="left", fill="y", before=self.text_frame)
+        else:
+            self.sidebar_frame.pack_forget()
 
     # state capture
     def capture_state(self, event=None):
@@ -237,18 +375,11 @@ class TextEditor:
         self.redo()
         return "break"
 
-    # open
-    def open_file(self):
-        file_path = filedialog.askopenfilename()
-
-        if not file_path:
-            self.log("OPEN_FILE_CANCELLED")
-            return
-
+    def load_file(self, file_path):
         with open(file_path, "r", encoding="utf-8") as file:
             content = file.read()
 
-        file_name = file_path.split("/")[-1]
+        file_name = os.path.basename(file_path)
 
         # MEMORY MANAGEMENT
         if file_name not in self.memory:
@@ -267,8 +398,21 @@ class TextEditor:
         self.text_area.insert(tk.END, content)
 
         self.current_file = file_path
+        self.undo_stack = [content.rstrip()]
+        self.redo_stack.clear()
+        self.update_analytics()
 
         self.log("OPEN_FILE: " + file_path)
+
+    # open
+    def open_file(self):
+        file_path = filedialog.askopenfilename()
+
+        if not file_path:
+            self.log("OPEN_FILE_CANCELLED")
+            return
+
+        self.load_file(file_path)
 
     # save file
     def save_file(self):
@@ -282,6 +426,7 @@ class TextEditor:
                     f.write(self.text_area.get(1.0, tk.END))
                 self.current_file = path
                 self.log("SAVE_FILE: " + path)
+                self.refresh_explorer()
 
     def save_event(self, event=None):
         self.save_file()
@@ -310,15 +455,13 @@ class TextEditor:
         return "break"
     
     def start_autosave(self):
-        self.autosave()
+        self.root.after(5000, self.autosave)
     
     def autosave(self):
         try:
             content = self.text_area.get("1.0", "end-1c")
             with open(self.autosave_file, "w", encoding="utf-8") as f:
                 f.write(content)
-
-            self.log("AUTOSAVE")
         except:
             pass
 
@@ -403,6 +546,7 @@ class TextEditor:
             os.rename(self.current_file, new_name)
             self.log(f"RENAME: {self.current_file} -> {new_name}")
             self.current_file = new_name
+            self.refresh_explorer()
         except Exception as e:
             self.log("RENAME_ERROR: " + str(e))
 
@@ -423,6 +567,7 @@ class TextEditor:
 
             self.text_area.delete(1.0, tk.END)
             self.current_file = None
+            self.refresh_explorer()
         except Exception as e:
             self.log("DELETE_ERROR: " + str(e))
 
