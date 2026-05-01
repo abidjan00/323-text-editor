@@ -50,6 +50,9 @@ class TextEditor:
         self.root.bind("<Control-y>", self.redo_event)
         self.root.bind("<Control-s>", self.save_event)
         self.root.bind("<Control-a>", self.select_all_event)
+        self.root.bind("<Control-c>", self.copy_event)
+        self.root.bind("<Control-v>", self.paste_event)
+        self.root.bind("<Control-x>", self.cut_event)
 
         # menu
         self.menu = tk.Menu(root)
@@ -218,6 +221,22 @@ class TextEditor:
         self.text_area.tag_add(tk.SEL, "1.0", tk.END)
         self.text_area.mark_set(tk.INSERT, "1.0")
         self.text_area.see(tk.INSERT)
+        return "break"
+
+    def copy_event(self, event=None):
+        self.text_area.event_generate("<<Copy>>")
+        return "break"
+
+    def paste_event(self, event=None):
+        self.text_area.event_generate("<<Paste>>")
+        self.capture_state()
+        self.update_analytics()
+        return "break"
+
+    def cut_event(self, event=None):
+        self.text_area.event_generate("<<Cut>>")
+        self.capture_state()
+        self.update_analytics()
         return "break"
 
     # search
