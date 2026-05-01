@@ -13,6 +13,11 @@ class TextEditor:
 
         self.current_file = None
 
+        # ram simulation
+        self.memory = {}
+        self.memory_order = []
+        self.MEMORY_LIMIT = 5
+
         # text area
         self.text_area = tk.Text(root, wrap="word")
         self.text_area.pack(expand=True, fill="both")
@@ -42,6 +47,14 @@ class TextEditor:
         edit_menu.add_command(label="Undo", command=self.undo)
         edit_menu.add_command(label="Redo", command=self.redo)
 
+    def log(self, action):
+        from datetime import datetime
+
+        time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with open("log.txt", "a") as f:
+            f.write(f"[{time}] {action}\n")
+
     # ---------------- STATE CAPTURE ----------------
     def capture_state(self, event=None):
         current = self.text_area.get(1.0, tk.END).rstrip()
@@ -69,6 +82,7 @@ class TextEditor:
     # event wrapper (CRITICAL)
     def undo_event(self, event):
         self.undo()
+        self.log("UNDO")
         return "break"
 
     # ---------------- REDO CORE ----------------
@@ -81,6 +95,7 @@ class TextEditor:
 
             self.text_area.delete(1.0, tk.END)
             self.text_area.insert(tk.END, next_state)
+            self.log("REDO")
 
     # event wrapper (CRITICAL)
     def redo_event(self, event):
@@ -89,16 +104,38 @@ class TextEditor:
 
     # ---------------- FILE OPS ----------------
     def open_file(self):
-        path = filedialog.askopenfilename()
-        if path:
-            with open(path, "r", encoding="utf-8") as f:
-                content = f.read()
+        file_path = filedialog.askopenfilename()
 
-            self.text_area.delete(1.0, tk.END)
-            self.text_area.insert(tk.END, content)
+        if not file_path:
+            self.log("OPEN_FILE_CANCELLED")
+            return
 
-            self.undo_stack = [content]
-            self.redo_stack.clear()
+        with open(file_path, "r", encoding="utf-8") as file:
+            content = file.read()
+
+        file_name = file_path.split("/")[-1]
+
+        # 🧠 MEMORY MANAGEMENT
+        if file_name not in self.memory:
+
+            if len(self.memory_order) >= self.MEMORY_LIMIT:
+                oldest = self.memory_order.pop(0)
+                del self.memory[oldest]
+                self.log("MEMORY_EVICT: " + oldest)
+
+            self.memory_order.append(file_name)
+
+        self.memory[file_name] = content
+
+        # display file
+        self.text_area.delete(1.0, tk.END)
+        self.text_area.insert(tk.END, content)
+
+        self.current_file = file_path
+
+        self.log("OPEN_FILE: " + file_path)
+
+    
 
     def save_file(self):
         if self.current_file:
@@ -110,6 +147,7 @@ class TextEditor:
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(self.text_area.get(1.0, tk.END))
                 self.current_file = path
+                self.log("SAVE_FILE: " + path)
 
 
 if __name__ == "__main__":
