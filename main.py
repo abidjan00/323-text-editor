@@ -26,6 +26,8 @@ class TextEditor:
         scrollbar = tk.Scrollbar(text_frame)
         scrollbar.pack(side="right", fill="y")
 
+        self.autosave_file = "autosave.txt"
+
         self.text_area = tk.Text(
             text_frame,
             wrap="word",
@@ -95,6 +97,9 @@ class TextEditor:
 
         # shortcut
         self.root.bind("<Control-f>", self.focus_search)
+
+        self.check_recovery()
+        self.start_autosave()
 
     def on_key_event(self, event):
         self.capture_state()
@@ -238,6 +243,46 @@ class TextEditor:
         self.capture_state()
         self.update_analytics()
         return "break"
+    
+    def start_autosave(self):
+        self.autosave()
+    
+    def autosave(self):
+        try:
+            content = self.text_area.get("1.0", "end-1c")
+            with open(self.autosave_file, "w", encoding="utf-8") as f:
+                f.write(content)
+
+            self.log("AUTOSAVE")
+        except:
+            pass
+
+        self.root.after(5000, self.autosave)
+
+
+    def check_recovery(self):
+        if not os.path.exists(self.autosave_file):
+            return
+
+        with open(self.autosave_file, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        if not content.strip():
+            return
+
+        recover = messagebox.askyesno(
+            "Recovery",
+            "Recovered unsaved session found. Restore it?"
+        )
+
+        if recover:
+            self.text_area.delete(1.0, tk.END)
+            self.text_area.insert(tk.END, content)
+            self.capture_state()
+            self.update_analytics()
+            self.log("RECOVERY_LOADED")
+        else:
+            self.log("RECOVERY_DISCARDED")
 
     # search
     def search_text(self, event=None):
