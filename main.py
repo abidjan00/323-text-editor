@@ -95,12 +95,14 @@ class TextEditor:
         # analytics status bar
         self.analytics_label = tk.Label(
             root,
-            text="Words: 0 | Characters: 0 | Lines: 0",
+            text="Words: 0 | Chars: 0 | Lines: 1    |    Untitled    |    Ln 1, Col 1",
             anchor="w"
         )
         self.analytics_label.pack(fill="x", side="bottom")
 
         self.text_area.bind("<KeyRelease>", self.on_key_event)
+        self.text_area.bind("<ButtonRelease-1>", self.update_analytics)
+        self.text_area.bind("<FocusIn>", self.update_analytics)
 
         # keyboard shortcuts 
         self.root.bind("<Control-z>", self.undo_event)
@@ -524,9 +526,19 @@ class TextEditor:
         words = len(content.split())
         chars = len(content)
         lines = content.count("\n") + 1
+        file_name = "Untitled"
+
+        if self.current_file:
+            file_name = os.path.basename(self.current_file)
+
+        cursor_line, cursor_col = self.text_area.index(tk.INSERT).split(".")
+        cursor_col = int(cursor_col) + 1
 
         self.analytics_label.config(
-            text=f"Words: {words} | Characters: {chars} | Lines: {lines}"
+            text=(
+                f"Words: {words} | Chars: {chars} | Lines: {lines}"
+                f"    |    {file_name}    |    Ln {cursor_line}, Col {cursor_col}"
+            )
         )
 
     # undo
@@ -651,6 +663,7 @@ class TextEditor:
         self.text_area.tag_add(tk.SEL, "1.0", tk.END)
         self.text_area.mark_set(tk.INSERT, "1.0")
         self.text_area.see(tk.INSERT)
+        self.update_analytics()
         return "break"
 
     def copy_event(self, event=None):

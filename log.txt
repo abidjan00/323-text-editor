@@ -110,3 +110,6 @@
 [2026-05-02 05:51:07] CLOSE_TAB: C:\Users\user\Downloads\file3
 [2026-05-02 05:51:12] OPEN_FILE: C:\Users\user\Downloads\file3
 [2026-05-02 05:51:18] CLOSE_TAB: C:\Users\user\Downloads\file3
+[2026-05-02 05:57:36] RECOVERY_DISCARDED
+[2026-05-02 05:57:55] OPEN_FILE: C:\Users\user\Downloads\file2
+[2026-05-02 05:58:07] RECOVERY_LOADED
