@@ -91,7 +91,7 @@ class SidebarExplorer:
             self.explorer_path = selected_path
             self.refresh()
         else:
-            self.editor.load_file(selected_path)
+            self.editor.fileops.load_file(selected_path)
 
         return "break"
 

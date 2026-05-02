@@ -1,7 +1,10 @@
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from autosave import AutosaveManager
 from explorer import SidebarExplorer
+from fileops import FileOperations
+from lifo import LifoManager
+from search import SearchManager
 from tab_manager import TabManager
 
 class TextEditor:
@@ -15,6 +18,10 @@ class TextEditor:
         self.redo_stack = []
         self.tab_manager = None
         self.explorer = None
+        self.autosave_manager = None
+        self.fileops = None
+        self.lifo = None
+        self.search_manager = None
         self.dark_mode = tk.BooleanVar(value=False)
         self.sidebar_visible = tk.BooleanVar(value=True)
 
@@ -42,8 +49,6 @@ class TextEditor:
         self.scrollbar = tk.Scrollbar(self.editor_frame)
         self.scrollbar.pack(side="right", fill="y")
 
-        self.autosave_file = "autosave.txt"
-
         self.text_area = tk.Text(
             self.editor_frame,
             wrap="word",
@@ -53,6 +58,10 @@ class TextEditor:
 
         self.scrollbar.config(command=self.text_area.yview)
         self.tab_manager = TabManager(self)
+        self.autosave_manager = AutosaveManager(self)
+        self.fileops = FileOperations(self)
+        self.lifo = LifoManager(self)
+        self.search_manager = SearchManager(self, self.root)
 
         # analytics status bar
         self.analytics_label = tk.Label(
@@ -67,8 +76,8 @@ class TextEditor:
         self.text_area.bind("<FocusIn>", self.update_analytics)
 
         # keyboard shortcuts 
-        self.root.bind("<Control-z>", self.undo_event)
-        self.root.bind("<Control-y>", self.redo_event)
+        self.root.bind("<Control-z>", self.lifo.undo_event)
+        self.root.bind("<Control-y>", self.lifo.redo_event)
         self.root.bind("<Control-s>", self.save_event)
         self.root.bind("<Control-a>", self.select_all_event)
         self.root.bind("<Control-c>", self.copy_event)
@@ -83,23 +92,26 @@ class TextEditor:
         self.file_menu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label="File", menu=self.file_menu)
 
-        self.file_menu.add_command(label="Open", command=self.open_file)
-        self.file_menu.add_command(label="Save", command=self.save_file)
-        self.file_menu.add_command(label="Rename", command=self.rename_file)
-        self.file_menu.add_command(label="Delete", command=self.delete_file)
+        self.file_menu.add_command(label="Open", command=self.fileops.open_file)
+        self.file_menu.add_command(label="Save", command=self.fileops.save_file)
+        self.file_menu.add_command(label="Rename", command=self.fileops.rename_file)
+        self.file_menu.add_command(label="Delete", command=self.fileops.delete_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=root.quit)
 
         self.edit_menu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label="Edit", menu=self.edit_menu)
 
-        self.edit_menu.add_command(label="Undo", command=self.undo)
-        self.edit_menu.add_command(label="Redo", command=self.redo)
+        self.edit_menu.add_command(label="Undo", command=self.lifo.undo)
+        self.edit_menu.add_command(label="Redo", command=self.lifo.redo)
 
         # VIEW MENU
         self.view_menu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label="View", menu=self.view_menu)
-        self.view_menu.add_command(label="Search", command=self.toggle_search)
+        self.view_menu.add_command(
+            label="Search",
+            command=self.search_manager.toggle_search
+        )
         self.view_menu.add_checkbutton(
             label="Explorer",
             variable=self.sidebar_visible,
@@ -111,30 +123,16 @@ class TextEditor:
             command=self.apply_theme
         )
 
-        # search bar (hidden initially)
-        self.search_frame = tk.Frame(self.root)
-
-        self.search_entry = tk.Entry(self.search_frame)
-        self.search_entry.pack(side="left", fill="x", expand=True)
-        self.search_entry.bind("<Return>", self.search_text)
-
-        self.search_button = tk.Button(
-            self.search_frame,
-            text="Search",
-            command=self.search_text
-        )
-        self.search_button.pack(side="right")
-
         # shortcut
-        self.root.bind("<Control-f>", self.focus_search)
+        self.root.bind("<Control-f>", self.search_manager.focus_search)
 
         self.refresh_explorer()
         self.apply_theme()
-        self.check_recovery()
-        self.start_autosave()
+        self.autosave_manager.check_recovery()
+        self.autosave_manager.start()
 
     def on_key_event(self, event):
-        self.capture_state()
+        self.lifo.capture_state()
         self.update_analytics()
 
     def apply_theme(self):
@@ -166,29 +164,18 @@ class TextEditor:
         self.text_frame.config(bg=colors["window"])
         self.editor_frame.config(bg=colors["window"])
         self.tab_frame.config(bg=colors["window"])
-        self.search_frame.config(bg=colors["window"])
         self.analytics_label.config(
             bg=colors["window"],
             fg=colors["muted"]
         )
         self.explorer.apply_theme(colors)
+        self.search_manager.apply_theme(colors)
         self.text_area.config(
             bg=colors["editor"],
             fg=colors["text"],
             insertbackground=colors["insert"],
             selectbackground=colors["select"],
             selectforeground=colors["text"]
-        )
-        self.search_entry.config(
-            bg=colors["field"],
-            fg=colors["text"],
-            insertbackground=colors["insert"]
-        )
-        self.search_button.config(
-            bg=colors["button"],
-            fg=colors["text"],
-            activebackground=colors["field"],
-            activeforeground=colors["text"]
         )
         self.refresh_tabs()
 
@@ -257,27 +244,6 @@ class TextEditor:
     def close_tab(self, file_path):
         self.tab_manager.close_tab(file_path)
 
-    # state capture
-    def capture_state(self, event=None):
-        current = self.get_editor_content()
-
-        if self.undo_stack[-1] == current:
-            return
-
-        self.undo_stack.append(current)
-        self.redo_stack.clear()
-
-        if len(self.undo_stack) > 100:
-            self.undo_stack.pop(0)
-
-        tab = self.current_tab()
-
-        if tab:
-            tab["content"] = current
-            tab["undo_stack"] = self.undo_stack
-            tab["redo_stack"] = self.redo_stack
-            self.remember_file(self.current_file, current)
-
     # analytics update
     def update_analytics(self, event=None):
         content = self.text_area.get("1.0", "end-1c")
@@ -300,94 +266,8 @@ class TextEditor:
             )
         )
 
-    # undo
-    def undo(self):
-        if len(self.undo_stack) > 1:
-            current = self.get_editor_content()
-            self.redo_stack.append(current)
-
-            self.undo_stack.pop()
-
-            self.text_area.delete(1.0, tk.END)
-            self.text_area.insert(tk.END, self.undo_stack[-1])
-            self.save_current_tab_state()
-            self.update_analytics()
-
-    # event wrapper
-    def undo_event(self, event):
-        self.undo()
-        self.log("UNDO")
-        return "break"
-
-    # redo
-    def redo(self):
-        if self.redo_stack:
-            current = self.get_editor_content()
-            self.undo_stack.append(current)
-
-            next_state = self.redo_stack.pop()
-
-            self.text_area.delete(1.0, tk.END)
-            self.text_area.insert(tk.END, next_state)
-            self.save_current_tab_state()
-            self.update_analytics()
-            self.log("REDO")
-
-    # event wrapper 
-    def redo_event(self, event):
-        self.redo()
-        return "break"
-
-    def load_file(self, file_path):
-        file_path = os.path.abspath(file_path)
-
-        if file_path in self.tab_manager.open_tabs:
-            self.switch_tab(file_path)
-            return
-
-        self.save_current_tab_state()
-
-        if file_path in self.memory:
-            content = self.memory[file_path]
-        else:
-            with open(file_path, "r", encoding="utf-8") as file:
-                content = file.read()
-
-        self.tab_manager.create_tab(file_path, content)
-
-        self.log("OPEN_FILE: " + file_path)
-
-    # open
-    def open_file(self):
-        file_path = filedialog.askopenfilename()
-
-        if not file_path:
-            self.log("OPEN_FILE_CANCELLED")
-            return
-
-        self.load_file(file_path)
-
-    # save file
-    def save_file(self):
-        content = self.get_editor_content()
-
-        if self.current_file:
-            with open(self.current_file, "w", encoding="utf-8") as f:
-                f.write(content)
-            self.save_current_tab_state()
-            self.log("SAVE_FILE: " + self.current_file)
-        else:
-            path = filedialog.asksaveasfilename()
-            if path:
-                path = os.path.abspath(path)
-                with open(path, "w", encoding="utf-8") as f:
-                    f.write(content)
-                self.tab_manager.create_tab(path, content)
-                self.log("SAVE_FILE: " + path)
-                self.refresh_explorer()
-
     def save_event(self, event=None):
-        self.save_file()
+        self.fileops.save_file()
         return "break"
 
     def select_all_event(self, event=None):
@@ -403,150 +283,16 @@ class TextEditor:
 
     def paste_event(self, event=None):
         self.text_area.event_generate("<<Paste>>")
-        self.capture_state()
+        self.lifo.capture_state()
         self.update_analytics()
         return "break"
 
     def cut_event(self, event=None):
         self.text_area.event_generate("<<Cut>>")
-        self.capture_state()
+        self.lifo.capture_state()
         self.update_analytics()
         return "break"
     
-    def start_autosave(self):
-        self.root.after(5000, self.autosave)
-    
-    def autosave(self):
-        try:
-            self.save_current_tab_state()
-            content = self.get_editor_content()
-            with open(self.autosave_file, "w", encoding="utf-8") as f:
-                f.write(content)
-        except:
-            pass
-
-        self.root.after(5000, self.autosave)
-
-
-    def check_recovery(self):
-        if not os.path.exists(self.autosave_file):
-            return
-
-        with open(self.autosave_file, "r", encoding="utf-8") as f:
-            content = f.read()
-
-        if not content.strip():
-            return
-
-        recover = messagebox.askyesno(
-            "Recovery",
-            "Recovered unsaved session found. Restore it?"
-        )
-
-        if recover:
-            self.text_area.delete(1.0, tk.END)
-            self.text_area.insert(tk.END, content)
-            self.capture_state()
-            self.update_analytics()
-            self.log("RECOVERY_LOADED")
-        else:
-            self.log("RECOVERY_DISCARDED")
-
-    # search
-    def search_text(self, event=None):
-        self.text_area.tag_remove("highlight", "1.0", tk.END)
-
-        query = self.search_entry.get()
-
-        if not query:
-            return
-
-        start = "1.0"
-
-        while True:
-            start = self.text_area.search(query, start, stopindex=tk.END)
-
-            if not start:
-                break
-
-            end = f"{start}+{len(query)}c"
-
-            self.text_area.tag_add("highlight", start, end)
-            start = end
-
-        self.text_area.tag_config("highlight", background="#ffb6c1")
-        return "break"
-
-    def focus_search(self, event=None):
-        if not self.search_frame.winfo_ismapped():
-            self.search_frame.pack(fill="x")
-
-        self.search_entry.focus()
-        return "break"
-
-    def toggle_search(self):
-        if self.search_frame.winfo_ismapped():
-            self.search_frame.pack_forget()
-        else:
-            self.search_frame.pack(fill="x")
-            self.search_entry.focus()
-
-    def rename_file(self):
-        if not self.current_file:
-            self.log("RENAME_FAILED_NO_FILE")
-            return
-
-        new_name = filedialog.asksaveasfilename()
-
-        if not new_name:
-            self.log("RENAME_CANCELLED")
-            return
-
-        try:
-            self.save_current_tab_state()
-            old_name = self.current_file
-            new_name = os.path.abspath(new_name)
-            os.rename(self.current_file, new_name)
-            self.log(f"RENAME: {old_name} -> {new_name}")
-
-            if old_name in self.memory:
-                self.memory[new_name] = self.memory.pop(old_name)
-
-            if old_name in self.memory_order:
-                self.memory_order[self.memory_order.index(old_name)] = new_name
-
-            self.tab_manager.rename_tab(old_name, new_name)
-            self.refresh_explorer()
-        except Exception as e:
-            self.log("RENAME_ERROR: " + str(e))
-
-    def delete_file(self):
-        if not self.current_file:
-            self.log("DELETE_FAILED_NO_FILE")
-            return
-
-        confirm = messagebox.askyesno("Confirm Delete", "Delete this file?")
-
-        if not confirm:
-            self.log("DELETE_CANCELLED")
-            return
-
-        try:
-            deleted_file = self.current_file
-            os.remove(deleted_file)
-            self.log("DELETE_FILE: " + deleted_file)
-
-            self.tab_manager.remove_tab(deleted_file)
-            self.memory.pop(deleted_file, None)
-
-            if deleted_file in self.memory_order:
-                self.memory_order.remove(deleted_file)
-
-            self.refresh_explorer()
-        except Exception as e:
-            self.log("DELETE_ERROR: " + str(e))
-
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = TextEditor(root)
