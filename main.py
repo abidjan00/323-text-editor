@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from explorer import SidebarExplorer
 from tab_manager import TabManager
 
 class TextEditor:
@@ -13,10 +14,9 @@ class TextEditor:
         self.undo_stack = [""]
         self.redo_stack = []
         self.tab_manager = None
+        self.explorer = None
         self.dark_mode = tk.BooleanVar(value=False)
         self.sidebar_visible = tk.BooleanVar(value=True)
-        self.explorer_path = os.path.expanduser("~")
-        self.explorer_items = []
 
         # ram simulation
         self.memory = {}
@@ -27,46 +27,7 @@ class TextEditor:
         self.main_frame = tk.Frame(root)
         self.main_frame.pack(expand=True, fill="both")
 
-        # sidebar explorer
-        self.sidebar_frame = tk.Frame(self.main_frame, width=180)
-        self.sidebar_frame.pack(side="left", fill="y")
-        self.sidebar_frame.pack_propagate(False)
-
-        self.sidebar_header = tk.Frame(self.sidebar_frame)
-        self.sidebar_header.pack(fill="x")
-
-        self.sidebar_label = tk.Label(
-            self.sidebar_header,
-            text=self.explorer_path,
-            anchor="w"
-        )
-        self.sidebar_label.pack(side="left", fill="x", expand=True)
-
-        self.up_button = tk.Button(
-            self.sidebar_header,
-            text="Up",
-            command=self.go_up_folder
-        )
-        self.up_button.pack(side="right")
-
-        self.refresh_button = tk.Button(
-            self.sidebar_header,
-            text="Refresh",
-            command=self.refresh_explorer
-        )
-        self.refresh_button.pack(side="right")
-
-        self.file_listbox = tk.Listbox(self.sidebar_frame, activestyle="none")
-        self.file_listbox.pack(side="left", fill="both", expand=True)
-        self.file_listbox.bind("<Double-Button-1>", self.open_selected_file)
-        self.file_listbox.bind("<Return>", self.open_selected_file)
-
-        self.explorer_scrollbar = tk.Scrollbar(
-            self.sidebar_frame,
-            command=self.file_listbox.yview
-        )
-        self.explorer_scrollbar.pack(side="right", fill="y")
-        self.file_listbox.config(yscrollcommand=self.explorer_scrollbar.set)
+        self.explorer = SidebarExplorer(self, self.main_frame)
 
         # text area + scrollbar container
         self.text_frame = tk.Frame(self.main_frame)
@@ -205,35 +166,12 @@ class TextEditor:
         self.text_frame.config(bg=colors["window"])
         self.editor_frame.config(bg=colors["window"])
         self.tab_frame.config(bg=colors["window"])
-        self.sidebar_frame.config(bg=colors["window"])
-        self.sidebar_header.config(bg=colors["window"])
         self.search_frame.config(bg=colors["window"])
-        self.sidebar_label.config(
-            bg=colors["window"],
-            fg=colors["muted"]
-        )
         self.analytics_label.config(
             bg=colors["window"],
             fg=colors["muted"]
         )
-        self.file_listbox.config(
-            bg=colors["field"],
-            fg=colors["text"],
-            selectbackground=colors["select"],
-            selectforeground=colors["text"]
-        )
-        self.refresh_button.config(
-            bg=colors["button"],
-            fg=colors["text"],
-            activebackground=colors["field"],
-            activeforeground=colors["text"]
-        )
-        self.up_button.config(
-            bg=colors["button"],
-            fg=colors["text"],
-            activebackground=colors["field"],
-            activeforeground=colors["text"]
-        )
+        self.explorer.apply_theme(colors)
         self.text_area.config(
             bg=colors["editor"],
             fg=colors["text"],
@@ -271,63 +209,16 @@ class TextEditor:
             f.write(f"[{time}] {action}\n")
 
     def refresh_explorer(self):
-        self.file_listbox.delete(0, tk.END)
-        self.explorer_items = []
-        self.sidebar_label.config(text=self.explorer_path)
-
-        try:
-            entries = os.listdir(self.explorer_path)
-        except Exception as e:
-            self.log("EXPLORER_ERROR: " + str(e))
-            return
-
-        folders = []
-        files = []
-
-        for name in entries:
-            path = os.path.join(self.explorer_path, name)
-
-            if os.path.isdir(path):
-                folders.append((name, path))
-            elif os.path.isfile(path):
-                files.append((name, path))
-
-        for name, path in sorted(folders, key=lambda item: item[0].lower()):
-            self.explorer_items.append(path)
-            self.file_listbox.insert(tk.END, "[D] " + name)
-
-        for name, path in sorted(files, key=lambda item: item[0].lower()):
-            self.explorer_items.append(path)
-            self.file_listbox.insert(tk.END, "[F] " + name)
+        self.explorer.refresh()
 
     def open_selected_file(self, event=None):
-        selected = self.file_listbox.curselection()
-
-        if not selected:
-            return "break"
-
-        selected_path = self.explorer_items[selected[0]]
-
-        if os.path.isdir(selected_path):
-            self.explorer_path = selected_path
-            self.refresh_explorer()
-        else:
-            self.load_file(selected_path)
-
-        return "break"
+        return self.explorer.open_selected_file(event)
 
     def go_up_folder(self):
-        parent = os.path.dirname(self.explorer_path)
-
-        if parent and parent != self.explorer_path:
-            self.explorer_path = parent
-            self.refresh_explorer()
+        self.explorer.go_up_folder()
 
     def toggle_sidebar(self):
-        if self.sidebar_visible.get():
-            self.sidebar_frame.pack(side="left", fill="y", before=self.text_frame)
-        else:
-            self.sidebar_frame.pack_forget()
+        self.explorer.toggle(self.sidebar_visible.get(), self.text_frame)
 
     def get_editor_content(self):
         return self.text_area.get("1.0", "end-1c")
