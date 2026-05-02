@@ -1,5 +1,5 @@
-import os
 import tkinter as tk
+from analytics import AnalyticsManager
 from autosave import AutosaveManager
 from explorer import SidebarExplorer
 from fileops import FileOperations
@@ -62,18 +62,9 @@ class TextEditor:
         self.fileops = FileOperations(self)
         self.lifo = LifoManager(self)
         self.search_manager = SearchManager(self, self.root)
-
-        # analytics status bar
-        self.analytics_label = tk.Label(
-            root,
-            text="Words: 0 | Chars: 0 | Lines: 1    |    Untitled    |    Ln 1, Col 1",
-            anchor="w"
-        )
-        self.analytics_label.pack(fill="x", side="bottom")
-
-        self.text_area.bind("<KeyRelease>", self.on_key_event)
-        self.text_area.bind("<ButtonRelease-1>", self.update_analytics)
-        self.text_area.bind("<FocusIn>", self.update_analytics)
+        self.analytics_manager = AnalyticsManager(self)
+        self.analytics_manager.pack()
+        self.analytics_manager.bind_events()
 
         # keyboard shortcuts 
         self.root.bind("<Control-z>", self.lifo.undo_event)
@@ -105,7 +96,7 @@ class TextEditor:
         self.edit_menu.add_command(label="Undo", command=self.lifo.undo)
         self.edit_menu.add_command(label="Redo", command=self.lifo.redo)
 
-        # VIEW MENU
+        # view
         self.view_menu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label="View", menu=self.view_menu)
         self.view_menu.add_command(
@@ -131,9 +122,8 @@ class TextEditor:
         self.autosave_manager.check_recovery()
         self.autosave_manager.start()
 
-    def on_key_event(self, event):
-        self.lifo.capture_state()
-        self.update_analytics()
+    def update_analytics(self, event=None):
+        self.analytics_manager.update(event)
 
     def apply_theme(self):
         if self.dark_mode.get():
@@ -164,10 +154,7 @@ class TextEditor:
         self.text_frame.config(bg=colors["window"])
         self.editor_frame.config(bg=colors["window"])
         self.tab_frame.config(bg=colors["window"])
-        self.analytics_label.config(
-            bg=colors["window"],
-            fg=colors["muted"]
-        )
+        self.analytics_manager.apply_theme(colors)
         self.explorer.apply_theme(colors)
         self.search_manager.apply_theme(colors)
         self.text_area.config(
@@ -224,28 +211,6 @@ class TextEditor:
 
     def close_tab(self, file_path):
         self.tab_manager.close_tab(file_path)
-
-    # analytics update
-    def update_analytics(self, event=None):
-        content = self.text_area.get("1.0", "end-1c")
-
-        words = len(content.split())
-        chars = len(content)
-        lines = content.count("\n") + 1
-        file_name = "Untitled"
-
-        if self.current_file:
-            file_name = os.path.basename(self.current_file)
-
-        cursor_line, cursor_col = self.text_area.index(tk.INSERT).split(".")
-        cursor_col = int(cursor_col) + 1
-
-        self.analytics_label.config(
-            text=(
-                f"Words: {words} | Chars: {chars} | Lines: {lines}"
-                f"    |    {file_name}    |    Ln {cursor_line}, Col {cursor_col}"
-            )
-        )
 
     def save_event(self, event=None):
         self.fileops.save_file()
