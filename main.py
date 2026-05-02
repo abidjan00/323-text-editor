@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from tab_manager import TabManager
 
 class TextEditor:
     def __init__(self, root):
@@ -11,8 +12,7 @@ class TextEditor:
         self.current_file = None
         self.undo_stack = [""]
         self.redo_stack = []
-        self.open_tabs = {}
-        self.tab_order = []
+        self.tab_manager = None
         self.dark_mode = tk.BooleanVar(value=False)
         self.sidebar_visible = tk.BooleanVar(value=True)
         self.explorer_path = os.path.expanduser("~")
@@ -91,6 +91,7 @@ class TextEditor:
         self.text_area.pack(side="left", expand=True, fill="both")
 
         self.scrollbar.config(command=self.text_area.yview)
+        self.tab_manager = TabManager(self)
 
         # analytics status bar
         self.analytics_label = tk.Label(
@@ -332,10 +333,7 @@ class TextEditor:
         return self.text_area.get("1.0", "end-1c")
 
     def current_tab(self):
-        if not self.current_file:
-            return None
-
-        return self.open_tabs.get(self.current_file)
+        return self.tab_manager.current_tab()
 
     def remember_file(self, file_path, content):
         if file_path in self.memory_order:
@@ -349,105 +347,13 @@ class TextEditor:
         self.memory[file_path] = content
 
     def save_current_tab_state(self):
-        tab = self.current_tab()
-
-        if not tab:
-            return
-
-        content = self.get_editor_content()
-        tab["content"] = content
-        tab["undo_stack"] = self.undo_stack
-        tab["redo_stack"] = self.redo_stack
-        self.remember_file(self.current_file, content)
+        self.tab_manager.save_current_tab_state()
 
     def refresh_tabs(self):
-        for child in self.tab_frame.winfo_children():
-            child.destroy()
-
-        if self.dark_mode.get():
-            active_bg = "#4a4a4d"
-            inactive_bg = "#2d2d30"
-            fg = "#f2f2f2"
-            close_bg = "#3a3a3d"
-        else:
-            active_bg = "#ffffff"
-            inactive_bg = "#e5e5e5"
-            fg = "#000000"
-            close_bg = "#dddddd"
-
-        title_counts = {}
-
-        for file_path in self.tab_order:
-            title = os.path.basename(file_path)
-            title_counts[title] = title_counts.get(title, 0) + 1
-
-        for file_path in self.tab_order:
-            tab = self.open_tabs.get(file_path)
-
-            if not tab:
-                continue
-
-            title = tab["title"]
-
-            if title_counts.get(title, 0) > 1:
-                title = f"{title} - {os.path.basename(os.path.dirname(file_path))}"
-
-            tab_bg = active_bg if file_path == self.current_file else inactive_bg
-
-            tab_container = tk.Frame(
-                self.tab_frame,
-                bg=tab_bg,
-                bd=1,
-                relief=tk.RAISED if file_path == self.current_file else tk.FLAT
-            )
-            tab_container.pack(side="left", padx=(0, 1), pady=(0, 1))
-
-            button = tk.Button(
-                tab_container,
-                text=title,
-                relief=tk.FLAT,
-                bg=tab_bg,
-                fg=fg,
-                activebackground=active_bg,
-                activeforeground=fg,
-                command=lambda path=file_path: self.switch_tab(path)
-            )
-            button.pack(side="left")
-
-            close_button = tk.Button(
-                tab_container,
-                text="x",
-                width=2,
-                relief=tk.FLAT,
-                bg=close_bg,
-                fg=fg,
-                activebackground=active_bg,
-                activeforeground=fg,
-                command=lambda path=file_path: self.close_tab(path)
-            )
-            close_button.pack(side="left")
+        self.tab_manager.refresh_tabs()
 
     def switch_tab(self, file_path):
-        if file_path == self.current_file:
-            return
-
-        tab = self.open_tabs.get(file_path)
-
-        if not tab:
-            return
-
-        self.save_current_tab_state()
-
-        self.current_file = file_path
-        self.undo_stack = tab["undo_stack"]
-        self.redo_stack = tab["redo_stack"]
-
-        self.text_area.delete(1.0, tk.END)
-        self.text_area.insert(tk.END, tab["content"])
-
-        self.update_analytics()
-        self.refresh_tabs()
-        self.log("SWITCH_TAB: " + file_path)
+        self.tab_manager.switch_tab(file_path)
 
     def close_current_tab(self):
         if self.current_file:
@@ -458,45 +364,7 @@ class TextEditor:
         return "break"
 
     def close_tab(self, file_path):
-        tab = self.open_tabs.get(file_path)
-
-        if not tab:
-            return
-
-        if file_path == self.current_file:
-            self.save_current_tab_state()
-        else:
-            self.remember_file(file_path, tab["content"])
-
-        try:
-            tab_index = self.tab_order.index(file_path)
-        except ValueError:
-            tab_index = 0
-
-        self.open_tabs.pop(file_path, None)
-
-        if file_path in self.tab_order:
-            self.tab_order.remove(file_path)
-
-        if not self.tab_order:
-            self.current_file = None
-            self.undo_stack = [""]
-            self.redo_stack = []
-            self.text_area.delete(1.0, tk.END)
-            self.update_analytics()
-            self.refresh_tabs()
-            self.log("CLOSE_TAB: " + file_path)
-            return
-
-        if file_path == self.current_file:
-            next_index = min(tab_index, len(self.tab_order) - 1)
-            next_file = self.tab_order[next_index]
-            self.current_file = None
-            self.switch_tab(next_file)
-        else:
-            self.refresh_tabs()
-
-        self.log("CLOSE_TAB: " + file_path)
+        self.tab_manager.close_tab(file_path)
 
     # state capture
     def capture_state(self, event=None):
@@ -582,7 +450,7 @@ class TextEditor:
     def load_file(self, file_path):
         file_path = os.path.abspath(file_path)
 
-        if file_path in self.open_tabs:
+        if file_path in self.tab_manager.open_tabs:
             self.switch_tab(file_path)
             return
 
@@ -594,26 +462,7 @@ class TextEditor:
             with open(file_path, "r", encoding="utf-8") as file:
                 content = file.read()
 
-        file_name = os.path.basename(file_path)
-
-        self.open_tabs[file_path] = {
-            "title": file_name,
-            "content": content,
-            "undo_stack": [content],
-            "redo_stack": []
-        }
-        self.tab_order.append(file_path)
-        self.remember_file(file_path, content)
-
-        # display file
-        self.text_area.delete(1.0, tk.END)
-        self.text_area.insert(tk.END, content)
-
-        self.current_file = file_path
-        self.undo_stack = self.open_tabs[file_path]["undo_stack"]
-        self.redo_stack = self.open_tabs[file_path]["redo_stack"]
-        self.update_analytics()
-        self.refresh_tabs()
+        self.tab_manager.create_tab(file_path, content)
 
         self.log("OPEN_FILE: " + file_path)
 
@@ -642,16 +491,7 @@ class TextEditor:
                 path = os.path.abspath(path)
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(content)
-                self.current_file = path
-                self.open_tabs[path] = {
-                    "title": os.path.basename(path),
-                    "content": content,
-                    "undo_stack": self.undo_stack,
-                    "redo_stack": self.redo_stack
-                }
-                self.tab_order.append(path)
-                self.remember_file(path, content)
-                self.refresh_tabs()
+                self.tab_manager.create_tab(path, content)
                 self.log("SAVE_FILE: " + path)
                 self.refresh_explorer()
 
@@ -778,21 +618,13 @@ class TextEditor:
             os.rename(self.current_file, new_name)
             self.log(f"RENAME: {old_name} -> {new_name}")
 
-            if old_name in self.open_tabs:
-                self.open_tabs[new_name] = self.open_tabs.pop(old_name)
-                self.open_tabs[new_name]["title"] = os.path.basename(new_name)
-
-            if old_name in self.tab_order:
-                self.tab_order[self.tab_order.index(old_name)] = new_name
-
             if old_name in self.memory:
                 self.memory[new_name] = self.memory.pop(old_name)
 
             if old_name in self.memory_order:
                 self.memory_order[self.memory_order.index(old_name)] = new_name
 
-            self.current_file = new_name
-            self.refresh_tabs()
+            self.tab_manager.rename_tab(old_name, new_name)
             self.refresh_explorer()
         except Exception as e:
             self.log("RENAME_ERROR: " + str(e))
@@ -813,26 +645,11 @@ class TextEditor:
             os.remove(deleted_file)
             self.log("DELETE_FILE: " + deleted_file)
 
-            self.text_area.delete(1.0, tk.END)
-            self.open_tabs.pop(deleted_file, None)
+            self.tab_manager.remove_tab(deleted_file)
             self.memory.pop(deleted_file, None)
-
-            if deleted_file in self.tab_order:
-                self.tab_order.remove(deleted_file)
 
             if deleted_file in self.memory_order:
                 self.memory_order.remove(deleted_file)
-
-            if self.tab_order:
-                next_file = self.tab_order[-1]
-                self.current_file = None
-                self.switch_tab(next_file)
-            else:
-                self.current_file = None
-                self.undo_stack = [""]
-                self.redo_stack = []
-                self.update_analytics()
-                self.refresh_tabs()
 
             self.refresh_explorer()
         except Exception as e:
