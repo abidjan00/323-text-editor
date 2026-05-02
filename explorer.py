@@ -57,7 +57,7 @@ class SidebarExplorer:
         try:
             entries = os.listdir(self.explorer_path)
         except Exception as e:
-            self.editor.log("EXPLORER_ERROR: " + str(e))
+            self.editor.logger.log("EXPLORER_ERROR: " + str(e))
             return
 
         folders = []

@@ -15,20 +15,20 @@ class FileOperations:
 
         self.editor.save_current_tab_state()
 
-        if file_path in self.editor.memory:
-            content = self.editor.memory[file_path]
+        if self.editor.memory.has(file_path):
+            content = self.editor.memory.get(file_path)
         else:
             with open(file_path, "r", encoding="utf-8") as file:
                 content = file.read()
 
         self.editor.tab_manager.create_tab(file_path, content)
-        self.editor.log("OPEN_FILE: " + file_path)
+        self.editor.logger.log("OPEN_FILE: " + file_path)
 
     def open_file(self):
         file_path = filedialog.askopenfilename()
 
         if not file_path:
-            self.editor.log("OPEN_FILE_CANCELLED")
+            self.editor.logger.log("OPEN_FILE_CANCELLED")
             return
 
         self.load_file(file_path)
@@ -41,7 +41,7 @@ class FileOperations:
                 f.write(content)
 
             self.editor.save_current_tab_state()
-            self.editor.log("SAVE_FILE: " + self.editor.current_file)
+            self.editor.logger.log("SAVE_FILE: " + self.editor.current_file)
             return
 
         path = filedialog.asksaveasfilename()
@@ -53,18 +53,18 @@ class FileOperations:
                 f.write(content)
 
             self.editor.tab_manager.create_tab(path, content)
-            self.editor.log("SAVE_FILE: " + path)
+            self.editor.logger.log("SAVE_FILE: " + path)
             self.editor.refresh_explorer()
 
     def rename_file(self):
         if not self.editor.current_file:
-            self.editor.log("RENAME_FAILED_NO_FILE")
+            self.editor.logger.log("RENAME_FAILED_NO_FILE")
             return
 
         new_name = filedialog.asksaveasfilename()
 
         if not new_name:
-            self.editor.log("RENAME_CANCELLED")
+            self.editor.logger.log("RENAME_CANCELLED")
             return
 
         try:
@@ -72,42 +72,34 @@ class FileOperations:
             old_name = self.editor.current_file
             new_name = os.path.abspath(new_name)
             os.rename(self.editor.current_file, new_name)
-            self.editor.log(f"RENAME: {old_name} -> {new_name}")
+            self.editor.logger.log(f"RENAME: {old_name} -> {new_name}")
 
-            if old_name in self.editor.memory:
-                self.editor.memory[new_name] = self.editor.memory.pop(old_name)
-
-            if old_name in self.editor.memory_order:
-                index = self.editor.memory_order.index(old_name)
-                self.editor.memory_order[index] = new_name
+            self.editor.memory.rename(old_name, new_name)
 
             self.editor.tab_manager.rename_tab(old_name, new_name)
             self.editor.refresh_explorer()
         except Exception as e:
-            self.editor.log("RENAME_ERROR: " + str(e))
+            self.editor.logger.log("RENAME_ERROR: " + str(e))
 
     def delete_file(self):
         if not self.editor.current_file:
-            self.editor.log("DELETE_FAILED_NO_FILE")
+            self.editor.logger.log("DELETE_FAILED_NO_FILE")
             return
 
         confirm = messagebox.askyesno("Confirm Delete", "Delete this file?")
 
         if not confirm:
-            self.editor.log("DELETE_CANCELLED")
+            self.editor.logger.log("DELETE_CANCELLED")
             return
 
         try:
             deleted_file = self.editor.current_file
             os.remove(deleted_file)
-            self.editor.log("DELETE_FILE: " + deleted_file)
+            self.editor.logger.log("DELETE_FILE: " + deleted_file)
 
             self.editor.tab_manager.remove_tab(deleted_file)
-            self.editor.memory.pop(deleted_file, None)
-
-            if deleted_file in self.editor.memory_order:
-                self.editor.memory_order.remove(deleted_file)
+            self.editor.memory.remove(deleted_file)
 
             self.editor.refresh_explorer()
         except Exception as e:
-            self.editor.log("DELETE_ERROR: " + str(e))
+            self.editor.logger.log("DELETE_ERROR: " + str(e))

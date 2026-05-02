@@ -15,7 +15,7 @@ class TabManager:
         return self.open_tabs.get(self.editor.current_file)
 
     def remember_tab(self, file_path, content):
-        self.editor.remember_file(file_path, content)
+        self.editor.memory.remember(file_path, content)
 
     def create_tab(self, file_path, content):
         file_path = os.path.abspath(file_path)
@@ -59,7 +59,7 @@ class TabManager:
 
         self.editor.update_analytics()
         self.editor.refresh_tabs()
-        self.editor.log("SWITCH_TAB: " + file_path)
+        self.editor.logger.log("SWITCH_TAB: " + file_path)
 
     def save_current_tab_state(self):
         tab = self.current_tab()
@@ -171,7 +171,7 @@ class TabManager:
             self.editor.text_area.delete("1.0", tk.END)
             self.editor.update_analytics()
             self.editor.refresh_tabs()
-            self.editor.log("CLOSE_TAB: " + file_path)
+            self.editor.logger.log("CLOSE_TAB: " + file_path)
             return
 
         if file_path == self.editor.current_file:
@@ -182,7 +182,7 @@ class TabManager:
         else:
             self.editor.refresh_tabs()
 
-        self.editor.log("CLOSE_TAB: " + file_path)
+        self.editor.logger.log("CLOSE_TAB: " + file_path)
 
     def rename_tab(self, old_path, new_path):
         old_path = os.path.abspath(old_path)

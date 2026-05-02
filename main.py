@@ -4,6 +4,8 @@ from autosave import AutosaveManager
 from explorer import SidebarExplorer
 from fileops import FileOperations
 from lifo import LifoManager
+from log import AppLogger
+from memory import MemoryManager
 from search import SearchManager
 from tab_manager import TabManager
 
@@ -21,14 +23,11 @@ class TextEditor:
         self.autosave_manager = None
         self.fileops = None
         self.lifo = None
+        self.logger = AppLogger()
+        self.memory = None
         self.search_manager = None
         self.dark_mode = tk.BooleanVar(value=False)
         self.sidebar_visible = tk.BooleanVar(value=True)
-
-        # ram simulation
-        self.memory = {}
-        self.memory_order = []
-        self.MEMORY_LIMIT = 5
 
         # main content area
         self.main_frame = tk.Frame(root)
@@ -57,6 +56,7 @@ class TextEditor:
         self.text_area.pack(side="left", expand=True, fill="both")
 
         self.scrollbar.config(command=self.text_area.yview)
+        self.memory = MemoryManager(self.logger)
         self.tab_manager = TabManager(self)
         self.autosave_manager = AutosaveManager(self)
         self.fileops = FileOperations(self)
@@ -187,14 +187,6 @@ class TextEditor:
                 activeforeground=colors["text"]
             )
 
-    def log(self, action):
-        from datetime import datetime
-
-        time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        with open("log.txt", "a") as f:
-            f.write(f"[{time}] {action}\n")
-
     def refresh_explorer(self):
         self.explorer.refresh()
 
@@ -212,17 +204,6 @@ class TextEditor:
 
     def current_tab(self):
         return self.tab_manager.current_tab()
-
-    def remember_file(self, file_path, content):
-        if file_path in self.memory_order:
-            self.memory_order.remove(file_path)
-        elif len(self.memory_order) >= self.MEMORY_LIMIT:
-            oldest = self.memory_order.pop(0)
-            self.memory.pop(oldest, None)
-            self.log("MEMORY_EVICT: " + oldest)
-
-        self.memory_order.append(file_path)
-        self.memory[file_path] = content
 
     def save_current_tab_state(self):
         self.tab_manager.save_current_tab_state()

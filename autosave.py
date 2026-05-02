@@ -44,6 +44,6 @@ class AutosaveManager:
             self.editor.text_area.insert(tk.END, content)
             self.editor.lifo.capture_state()
             self.editor.update_analytics()
-            self.editor.log("RECOVERY_LOADED")
+            self.editor.logger.log("RECOVERY_LOADED")
         else:
-            self.editor.log("RECOVERY_DISCARDED")
+            self.editor.logger.log("RECOVERY_DISCARDED")

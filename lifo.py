@@ -24,7 +24,7 @@ class LifoManager:
             tab["content"] = current
             tab["undo_stack"] = self.editor.undo_stack
             tab["redo_stack"] = self.editor.redo_stack
-            self.editor.remember_file(self.editor.current_file, current)
+            self.editor.memory.remember(self.editor.current_file, current)
 
     def undo(self):
         if len(self.editor.undo_stack) <= 1:
@@ -39,7 +39,7 @@ class LifoManager:
         self.editor.text_area.insert(tk.END, self.editor.undo_stack[-1])
         self.editor.save_current_tab_state()
         self.editor.update_analytics()
-        self.editor.log("UNDO")
+        self.editor.logger.log("UNDO")
 
     def redo(self):
         if not self.editor.redo_stack:
@@ -54,7 +54,7 @@ class LifoManager:
         self.editor.text_area.insert(tk.END, next_state)
         self.editor.save_current_tab_state()
         self.editor.update_analytics()
-        self.editor.log("REDO")
+        self.editor.logger.log("REDO")
 
     def undo_event(self, event=None):
         self.undo()
