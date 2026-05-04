@@ -1,2 +1,0 @@
-print("Hello from Text Monkey")
-print(10/0)

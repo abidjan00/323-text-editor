@@ -11,6 +11,7 @@ from fileops import FileOperations
 from lifo import LifoManager
 from log import AppLogger
 from memory import MemoryManager
+from plugin_manager import PluginManager
 from search import SearchManager
 from tab_manager import TabManager
 from version_control import VersionControlManager
@@ -33,6 +34,7 @@ class TextEditor:
         self.lifo = None
         self.logger = AppLogger()
         self.memory = None
+        self.plugin_manager = None
         self.search_manager = None
         self.version_control = None
         self.dark_mode = tk.BooleanVar(value=False)
@@ -125,7 +127,9 @@ class TextEditor:
             self.editor_frame,
             wrap="word",
             yscrollcommand=self.scrollbar.set,
-            font=("Arial", 12)
+            font=("Arial", 12),
+            padx=10,
+            pady=6
         )
         self.text_area.pack(side="left", expand=True, fill="both")
         self.text_area.bind("<Button-1>", self.focus_text_area, add="+")
@@ -140,6 +144,7 @@ class TextEditor:
         self.compression_manager = CompressionManager(self)
         self.fileops = FileOperations(self)
         self.lifo = LifoManager(self)
+        self.plugin_manager = PluginManager(self)
         self.version_control = VersionControlManager(self)
         self.search_manager = SearchManager(self, self.root)
         self.analytics_manager = AnalyticsManager(self)
@@ -201,6 +206,9 @@ class TextEditor:
             label="Run Python",
             command=self.code_runner.run_python_code
         )
+
+        self.plugin_manager.attach_menu(self.menu)
+        self.plugin_manager.load_plugins()
 
         # view
         self.view_menu = tk.Menu(self.menu, tearoff=0)
@@ -281,6 +289,7 @@ class TextEditor:
             self.edit_menu,
             self.version_menu,
             self.run_menu,
+            self.plugin_manager.plugin_menu,
             self.view_menu
         ):
             menu.config(
