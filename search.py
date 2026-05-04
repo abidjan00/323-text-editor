@@ -64,11 +64,18 @@ class SearchManager:
         self.search_entry.config(
             bg=colors["field"],
             fg=colors["text"],
-            insertbackground=colors["insert"]
+            insertbackground=colors["insert"],
+            relief=tk.FLAT,
+            highlightthickness=2,
+            highlightbackground=colors["border"],
+            font=("Consolas", 9)
         )
         self.search_button.config(
             bg=colors["button"],
             fg=colors["text"],
             activebackground=colors["field"],
-            activeforeground=colors["text"]
+            activeforeground=colors["text"],
+            relief=tk.RIDGE,
+            bd=2,
+            font=("Consolas", 9, "bold")
         )

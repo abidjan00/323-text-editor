@@ -21,6 +21,8 @@ class TextEditor:
         self.root = root
         self.root.title("Text Monkey 1.0.0")
         self.root.geometry("800x600")
+        self.app_icon = self.create_text_monkey_icon()
+        self.root.iconphoto(False, self.app_icon)
 
         self.current_file = None
         self.undo_stack = [""]
@@ -48,6 +50,7 @@ class TextEditor:
         self.format_fonts = []
         self.last_selected_range = None
         self.top_bar_height = 34
+        self.theme_colors = {}
 
         # main content area
         self.main_frame = tk.Frame(root)
@@ -236,33 +239,90 @@ class TextEditor:
         self.autosave_manager.check_recovery()
         self.autosave_manager.start()
 
+    def create_text_monkey_icon(self):
+        icon = tk.PhotoImage(width=32, height=32)
+        pixels = [
+            "................................",
+            "................................",
+            "............bbbbbbbb............",
+            "..........bbppppppppbb..........",
+            "........bbppppppppppppbb........",
+            "......bbppppppppppppppppbb......",
+            ".....bppppppppppppppppppppb.....",
+            "....bpppppppbbbbbbpppppppppb....",
+            "...bppppppbbddddddbbppppppppb...",
+            "..bppppppbddddddddddbppppppppb..",
+            "..bpppppbddddddddddddbpppppppb..",
+            ".bpppppbddwwddddwwdddbpppppppb.",
+            ".bpppppbddwwddddwwdddbpppppppb.",
+            ".bpppppbddddddddddddddbpppppppb.",
+            ".bpppppbddddbwwbddddddbpppppppb.",
+            "..bppppbddddbbbbddddddbppppppb..",
+            "..bppppbddddddddddddddbppppppb..",
+            "...bppppbbddddddddddbbppppppb...",
+            "....bpppppbbbbbbbbbbpppppppb....",
+            ".....bppppppppppppppppppppb.....",
+            "......bbppppppppppppppppbb......",
+            "........bbppppppppppppbb........",
+            "..........bbppppppppbb..........",
+            "............bbbbbbbb............",
+            "..............b..b..............",
+            ".............bb..bb.............",
+            "............bb....bb............",
+            "...........bb......bb...........",
+            "................................",
+            "................................",
+            "................................",
+            "................................",
+        ]
+        palette = {
+            ".": "#ffe3f1",
+            "b": "#3a2030",
+            "p": "#ff9ccc",
+            "d": "#8a5a44",
+            "w": "#fff8fc",
+        }
+
+        for y, row in enumerate(pixels):
+            for x, color_key in enumerate(row):
+                icon.put(palette[color_key], (x, y))
+
+        return icon
+
     def update_analytics(self, event=None):
         self.analytics_manager.update(event)
 
     def apply_theme(self):
         if self.dark_mode.get():
             colors = {
-                "window": "#1f1f1f",
-                "editor": "#252526",
-                "text": "#f2f2f2",
-                "muted": "#d0d0d0",
-                "field": "#2d2d30",
-                "button": "#3a3a3d",
-                "select": "#5a4b57",
-                "insert": "#ffffff"
+                "window": "#2b1826",
+                "editor": "#341f30",
+                "text": "#ffeaf5",
+                "muted": "#ffd1e8",
+                "field": "#4a2a42",
+                "button": "#6f3b63",
+                "select": "#9b557f",
+                "insert": "#ffffff",
+                "border": "#ff8fc7",
+                "active_tab": "#5a304f",
+                "inactive_tab": "#3c2437"
             }
         else:
             colors = {
-                "window": "#f0f0f0",
-                "editor": "#ffffff",
-                "text": "#000000",
-                "muted": "#000000",
-                "field": "#ffffff",
-                "button": "#f0f0f0",
-                "select": "#c7d8ff",
-                "insert": "#000000"
+                "window": "#ffe3f1",
+                "editor": "#fff8fc",
+                "text": "#3a2030",
+                "muted": "#7a3d63",
+                "field": "#fff0f8",
+                "button": "#ffc1df",
+                "select": "#ff9ccc",
+                "insert": "#3a2030",
+                "border": "#e86ca8",
+                "active_tab": "#fff8fc",
+                "inactive_tab": "#ffd2e8"
             }
 
+        self.theme_colors = colors
         self.root.config(bg=colors["window"])
         self.main_frame.config(bg=colors["window"])
         self.text_frame.config(bg=colors["window"])
@@ -277,7 +337,12 @@ class TextEditor:
             fg=colors["text"],
             insertbackground=colors["insert"],
             selectbackground=colors["select"],
-            selectforeground=colors["text"]
+            selectforeground=colors["text"],
+            relief=tk.FLAT,
+            bd=0,
+            highlightthickness=2,
+            highlightbackground=colors["border"],
+            highlightcolor=colors["border"]
         )
         self.refresh_tabs()
         self.apply_toolbar_theme(colors)
@@ -296,7 +361,9 @@ class TextEditor:
                 bg=colors["window"],
                 fg=colors["text"],
                 activebackground=colors["field"],
-                activeforeground=colors["text"]
+                activeforeground=colors["text"],
+                bd=2,
+                relief=tk.RIDGE
             )
 
     def apply_toolbar_theme(self, colors):
@@ -310,7 +377,10 @@ class TextEditor:
                 bg=colors["button"],
                 fg=colors["text"],
                 activebackground=colors["field"],
-                activeforeground=colors["text"]
+                activeforeground=colors["text"],
+                relief=tk.RIDGE,
+                bd=2,
+                font=("Consolas", 9, "bold")
             )
 
         style = ttk.Style()
@@ -386,14 +456,10 @@ class TextEditor:
             self.last_selected_range = (str(selected[0]), str(selected[1]))
 
     def update_format_button_states(self):
-        if self.dark_mode.get():
-            active_bg = "#5a4b57"
-            inactive_bg = "#3a3a3d"
-            fg = "#f2f2f2"
-        else:
-            active_bg = "#c7d8ff"
-            inactive_bg = "#f0f0f0"
-            fg = "#000000"
+        colors = self.theme_colors
+        active_bg = colors.get("select", "#ff9ccc")
+        inactive_bg = colors.get("button", "#ffc1df")
+        fg = colors.get("text", "#3a2030")
 
         self.bold_button.config(
             bg=active_bg if self.bold_active.get() else inactive_bg,

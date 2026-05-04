@@ -78,16 +78,12 @@ class TabManager:
         for child in self.editor.tab_frame.winfo_children():
             child.destroy()
 
-        if self.editor.dark_mode.get():
-            active_bg = "#4a4a4d"
-            inactive_bg = "#2d2d30"
-            fg = "#f2f2f2"
-            close_bg = "#3a3a3d"
-        else:
-            active_bg = "#ffffff"
-            inactive_bg = "#e5e5e5"
-            fg = "#000000"
-            close_bg = "#dddddd"
+        colors = getattr(self.editor, "theme_colors", {})
+        active_bg = colors.get("active_tab", "#fff8fc")
+        inactive_bg = colors.get("inactive_tab", "#ffd2e8")
+        fg = colors.get("text", "#3a2030")
+        close_bg = colors.get("button", "#ffc1df")
+        border = colors.get("border", "#e86ca8")
 
         title_counts = {}
 
@@ -113,7 +109,9 @@ class TabManager:
                 self.editor.tab_frame,
                 bg=tab_bg,
                 bd=1,
-                relief=tk.RAISED if file_path == self.editor.current_file else tk.FLAT
+                relief=tk.RIDGE,
+                highlightbackground=border,
+                highlightthickness=1
             )
             tab_container.pack(side="left", padx=(0, 1), pady=(0, 1))
 
@@ -125,6 +123,7 @@ class TabManager:
                 fg=fg,
                 activebackground=active_bg,
                 activeforeground=fg,
+                font=("Consolas", 9, "bold"),
                 command=lambda path=file_path: self.switch_tab(path)
             )
             tab_button.pack(side="left")
@@ -138,6 +137,7 @@ class TabManager:
                 fg=fg,
                 activebackground=active_bg,
                 activeforeground=fg,
+                font=("Consolas", 9, "bold"),
                 command=lambda path=file_path: self.close_tab(path)
             )
             close_button.pack(side="left")

@@ -115,23 +115,35 @@ class SidebarExplorer:
         self.sidebar_header.config(bg=colors["window"])
         self.sidebar_label.config(
             bg=colors["window"],
-            fg=colors["muted"]
+            fg=colors["muted"],
+            font=("Consolas", 9, "bold")
         )
         self.file_listbox.config(
             bg=colors["field"],
             fg=colors["text"],
             selectbackground=colors["select"],
-            selectforeground=colors["text"]
+            selectforeground=colors["text"],
+            relief=tk.FLAT,
+            bd=0,
+            highlightthickness=2,
+            highlightbackground=colors["border"],
+            font=("Consolas", 9)
         )
         self.refresh_button.config(
             bg=colors["button"],
             fg=colors["text"],
             activebackground=colors["field"],
-            activeforeground=colors["text"]
+            activeforeground=colors["text"],
+            relief=tk.RIDGE,
+            bd=2,
+            font=("Consolas", 8, "bold")
         )
         self.up_button.config(
             bg=colors["button"],
             fg=colors["text"],
             activebackground=colors["field"],
-            activeforeground=colors["text"]
+            activeforeground=colors["text"],
+            relief=tk.RIDGE,
+            bd=2,
+            font=("Consolas", 8, "bold")
         )

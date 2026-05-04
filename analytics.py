@@ -22,7 +22,8 @@ class AnalyticsManager:
     def apply_theme(self, colors):
         self.label.config(
             bg=colors["window"],
-            fg=colors["muted"]
+            fg=colors["muted"],
+            font=("Consolas", 9, "bold")
         )
 
     def on_key_event(self, event=None):
