@@ -70,11 +70,12 @@ class AutosaveManager:
         self.editor.undo_stack = [content]
         self.editor.redo_stack = []
 
-        self.editor.text_area.config(state=tk.NORMAL)
+        self.editor.text_area.config(state=tk.NORMAL, takefocus=True)
         self.editor.text_area.delete("1.0", tk.END)
         self.editor.text_area.insert(tk.END, content)
         self.editor.text_area.mark_set(tk.INSERT, "end-1c")
         self.editor.text_area.focus_set()
+        self.editor.root.after(100, self.editor.text_area.focus_force)
 
         self.editor.refresh_tabs()
         self.editor.update_analytics()

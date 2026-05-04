@@ -41,6 +41,9 @@ class FileOperations:
         try:
             with open(file_path, "w", encoding="utf-8") as file:
                 file.write(content)
+
+            if self.editor.version_control:
+                self.editor.version_control.create_snapshot(file_path, content)
         except Exception as error:
             self.editor.root.after(0, lambda: self._save_error(file_path, error))
             return

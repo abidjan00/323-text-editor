@@ -13,8 +13,10 @@ class SidebarExplorer:
         self.sidebar_frame.pack(side="left", fill="y")
         self.sidebar_frame.pack_propagate(False)
 
-        self.sidebar_header = tk.Frame(self.sidebar_frame)
+        header_height = getattr(editor, "top_bar_height", 34)
+        self.sidebar_header = tk.Frame(self.sidebar_frame, height=header_height)
         self.sidebar_header.pack(fill="x")
+        self.sidebar_header.pack_propagate(False)
 
         self.sidebar_label = tk.Label(
             self.sidebar_header,

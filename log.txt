@@ -121,3 +121,170 @@
 [2026-05-02 13:43:21] OPEN_FILE: C:\Users\user\Downloads\file1
 [2026-05-02 13:43:37] RECOVERY_LOADED
 [2026-05-02 14:50:32] RECOVERY_DISCARDED
+[2026-05-04 23:26:50] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:26:51] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:26:59] FORMAT_APPLY: underline
+[2026-05-04 23:27:00] FORMAT_APPLY: italic
+[2026-05-04 23:27:02] FORMAT_APPLY: bold
+[2026-05-04 23:27:07] FORMAT_APPLY: font_family_Georgia
+[2026-05-04 23:27:10] FORMAT_APPLY: font_family_Calibri
+[2026-05-04 23:27:15] FORMAT_APPLY: font_family_Times_New_Roman
+[2026-05-04 23:27:20] FORMAT_APPLY: font_size_10
+[2026-05-04 23:27:25] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:27:29] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:27:31] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:27:35] FORMAT_APPLY: font_family_Arial
+[2026-05-04 23:27:40] FORMAT_APPLY: font_family_Times_New_Roman
+[2026-05-04 23:27:44] FORMAT_APPLY: font_family_Times_New_Roman
+[2026-05-04 23:27:52] FORMAT_APPLY: font_family_Calibri
+[2026-05-04 23:28:01] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:28:09] FORMAT_APPLY: font_size_12
+[2026-05-04 23:28:12] FORMAT_APPLY: font_size_20
+[2026-05-04 23:28:14] FORMAT_APPLY: font_family_Courier_New
+[2026-05-04 23:28:17] FORMAT_APPLY: font_family_Arial
+[2026-05-04 23:28:24] FORMAT_APPLY: font_family_Times_New_Roman
+[2026-05-04 23:28:26] FORMAT_APPLY: font_family_Courier_New
+[2026-05-04 23:28:36] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:28:38] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:28:39] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:28:43] FORMAT_APPLY: italic
+[2026-05-04 23:28:44] FORMAT_APPLY: bold
+[2026-05-04 23:28:44] FORMAT_APPLY: bold
+[2026-05-04 23:28:44] FORMAT_APPLY: bold
+[2026-05-04 23:28:44] FORMAT_APPLY: bold
+[2026-05-04 23:28:45] FORMAT_APPLY: italic
+[2026-05-04 23:28:46] FORMAT_APPLY: italic
+[2026-05-04 23:28:46] FORMAT_APPLY: italic
+[2026-05-04 23:28:46] FORMAT_APPLY: italic
+[2026-05-04 23:28:46] FORMAT_APPLY: italic
+[2026-05-04 23:28:46] FORMAT_APPLY: italic
+[2026-05-04 23:28:46] FORMAT_APPLY: italic
+[2026-05-04 23:28:47] FORMAT_APPLY: italic
+[2026-05-04 23:28:47] FORMAT_APPLY: italic
+[2026-05-04 23:28:51] FORMAT_APPLY: italic
+[2026-05-04 23:28:57] FORMAT_APPLY: bold
+[2026-05-04 23:28:58] FORMAT_APPLY: italic
+[2026-05-04 23:28:58] FORMAT_APPLY: underline
+[2026-05-04 23:29:40] FORMAT_COLOR_CANCELLED
+[2026-05-04 23:29:44] UNDO
+[2026-05-04 23:29:46] UNDO
+[2026-05-04 23:29:57] FORMAT_APPLY: color_ff80ff
+[2026-05-04 23:30:22] RECOVERY_LOADED
+[2026-05-04 23:30:36] FORMAT_APPLY: color_ff80c0
+[2026-05-04 23:30:45] FORMAT_APPLY: italic
+[2026-05-04 23:30:47] FORMAT_APPLY: bold
+[2026-05-04 23:31:28] RECOVERY_LOADED
+[2026-05-04 23:31:34] FORMAT_APPLY: bold
+[2026-05-04 23:31:35] FORMAT_APPLY: italic
+[2026-05-04 23:31:43] FORMAT_APPLY: color_000000
+[2026-05-04 23:31:52] FORMAT_APPLY: underline
+[2026-05-04 23:31:53] FORMAT_APPLY: italic
+[2026-05-04 23:31:55] FORMAT_APPLY: bold
+[2026-05-04 23:31:56] FORMAT_APPLY: italic
+[2026-05-04 23:31:57] FORMAT_APPLY: underline
+[2026-05-04 23:31:58] FORMAT_APPLY: bold
+[2026-05-04 23:31:58] FORMAT_APPLY: bold
+[2026-05-04 23:31:59] FORMAT_APPLY: bold
+[2026-05-04 23:31:59] FORMAT_APPLY: bold
+[2026-05-04 23:31:59] FORMAT_APPLY: bold
+[2026-05-04 23:33:52] RECOVERY_DISCARDED
+[2026-05-04 23:35:37] FORMAT_APPLY: format_Arial_12_bold_roman_0_000000
+[2026-05-04 23:35:39] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:40] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:41] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:41] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:41] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:41] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:41] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:42] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:42] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:42] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:42] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:42] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:43] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:43] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:43] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:43] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:43] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:43] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:44] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:44] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:44] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:44] FORMAT_APPLY: format_Arial_12_bold_italic_1_000000
+[2026-05-04 23:35:44] FORMAT_APPLY: format_Arial_12_bold_italic_0_000000
+[2026-05-04 23:35:47] FORMAT_APPLY: format_Courier_New_12_bold_italic_0_000000
+[2026-05-04 23:35:50] FORMAT_APPLY: format_Calibri_12_bold_italic_0_000000
+[2026-05-04 23:35:52] FORMAT_APPLY: format_Times_New_Roman_12_bold_italic_0_000000
+[2026-05-04 23:35:56] FORMAT_APPLY: format_Times_New_Roman_24_bold_italic_0_000000
+[2026-05-04 23:36:06] FORMAT_APPLY: format_Times_New_Roman_24_bold_italic_0_c3063c
+[2026-05-04 23:37:18] RECOVERY_LOADED
+[2026-05-04 23:37:31] FORMAT_APPLY: format_Arial_12_normal_roman_0_000000
+[2026-05-04 23:37:38] FORMAT_APPLY: format_Arial_12_normal_roman_1_000000
+[2026-05-04 23:37:39] FORMAT_APPLY: format_Arial_12_normal_roman_0_000000
+[2026-05-04 23:37:40] FORMAT_APPLY: format_Arial_12_normal_italic_0_000000
+[2026-05-04 23:37:40] FORMAT_APPLY: format_Arial_12_normal_roman_0_000000
+[2026-05-04 23:37:40] FORMAT_APPLY: format_Arial_12_normal_italic_0_000000
+[2026-05-04 23:37:40] FORMAT_APPLY: format_Arial_12_normal_roman_0_000000
+[2026-05-04 23:37:41] FORMAT_APPLY: format_Arial_12_normal_italic_0_000000
+[2026-05-04 23:37:41] FORMAT_APPLY: format_Arial_12_normal_roman_0_000000
+[2026-05-04 23:37:41] FORMAT_APPLY: format_Arial_12_normal_italic_0_000000
+[2026-05-04 23:37:41] FORMAT_APPLY: format_Arial_12_normal_roman_0_000000
+[2026-05-04 23:37:42] FORMAT_APPLY: format_Arial_12_normal_italic_0_000000
+[2026-05-04 23:37:59] RECOVERY_DISCARDED
+[2026-05-04 23:40:59] OPEN_FILE_START: C:\Users\user\Downloads\300x300     Px.jpg
+[2026-05-04 23:40:59] OPEN_FILE_ERROR: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+[2026-05-04 23:43:06] OPEN_FILE_START: C:\Users\user\Downloads\file2
+[2026-05-04 23:43:06] SWITCH_TAB: C:\Users\user\Downloads\file2
+[2026-05-04 23:43:06] OPEN_FILE: C:\Users\user\Downloads\file2
+[2026-05-04 23:43:39] OPEN_FILE_START: C:\Users\user\Downloads\iqratex
+[2026-05-04 23:43:39] SWITCH_TAB: C:\Users\user\Downloads\iqratex
+[2026-05-04 23:43:39] OPEN_FILE: C:\Users\user\Downloads\iqratex
+[2026-05-04 23:43:43] SWITCH_TAB: C:\Users\user\Downloads\file2
+[2026-05-04 23:43:45] SWITCH_TAB: C:\Users\user\Downloads\iqratex
+[2026-05-04 23:43:47] SWITCH_TAB: C:\Users\user\Downloads\file2
+[2026-05-04 23:43:50] SWITCH_TAB: C:\Users\user\Downloads\iqratex
+[2026-05-04 23:43:50] CLOSE_TAB: C:\Users\user\Downloads\file2
+[2026-05-04 23:43:51] CLOSE_TAB: C:\Users\user\Downloads\iqratex
+[2026-05-04 23:48:36] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:48:37] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-04 23:48:44] SWITCH_TAB: C:\Users\user\Downloads\uw
+[2026-05-04 23:48:44] VERSION_SNAPSHOT: C:\Users\user\Downloads\uw -> .versions\C__Users__user__Downloads__uw_20260504_234844_988992.txt
+[2026-05-04 23:48:44] SAVE_FILE: C:\Users\user\Downloads\uw
+[2026-05-04 23:49:05] VERSION_SNAPSHOT: C:\Users\user\Downloads\uw -> .versions\C__Users__user__Downloads__uw_20260504_234905_861059.txt
+[2026-05-04 23:49:21] OPEN_FILE_START: C:\Users\user\Downloads\file1
+[2026-05-04 23:49:21] SWITCH_TAB: C:\Users\user\Downloads\file1
+[2026-05-04 23:49:21] OPEN_FILE: C:\Users\user\Downloads\file1
+[2026-05-04 23:49:23] CLOSE_TAB: C:\Users\user\Downloads\uw
+[2026-05-04 23:49:27] VERSION_RESTORE_FAILED_EMPTY
+[2026-05-05 00:03:53] RECOVERY_LOADED
+[2026-05-05 00:04:33] FORMAT_SKIPPED_NO_SELECTION
+[2026-05-05 00:04:44] FORMAT_APPLY: format_Arial_12_normal_roman_0_050565
+[2026-05-05 00:27:33] OPEN_FILE_START: C:\Users\user\Downloads\uw
+[2026-05-05 00:27:33] SWITCH_TAB: C:\Users\user\Downloads\uw
+[2026-05-05 00:27:33] OPEN_FILE: C:\Users\user\Downloads\uw
+[2026-05-05 00:27:52] VERSION_SNAPSHOT: C:\Users\user\Downloads\uw -> .versions\C__Users__user__Downloads__uw_20260505_002752_244196.txt
+[2026-05-05 00:27:52] SAVE_FILE: C:\Users\user\Downloads\uw
+[2026-05-05 00:29:00] COMPRESS_FILE: C:\Users\user\Downloads\uw -> C:\Users\user\Downloads\uw_optimized.zip (62 -> 64 -> 179)
+[2026-05-05 00:29:18] COMPRESS_FILE: C:\Users\user\Downloads\uw -> C:\Users\user\Downloads\uw_optimized.zip (62 -> 64 -> 179)
+[2026-05-05 00:56:13] RECOVERY_DISCARDED
+[2026-05-05 00:57:25] SWITCH_TAB: C:\Users\user\Downloads\nana
+[2026-05-05 00:57:25] VERSION_SNAPSHOT: C:\Users\user\Downloads\nana -> .versions\C__Users__user__Downloads__nana_20260505_005725_317734.txt
+[2026-05-05 00:57:25] SAVE_FILE: C:\Users\user\Downloads\nana
+[2026-05-05 00:59:20] RECOVERY_LOADED
+[2026-05-05 00:59:28] OPEN_FILE_START: C:\Users\user\Downloads\nana
+[2026-05-05 00:59:28] SWITCH_TAB: C:\Users\user\Downloads\nana
+[2026-05-05 00:59:28] OPEN_FILE: C:\Users\user\Downloads\nana
+[2026-05-05 00:59:32] COMPRESS_FILE: C:\Users\user\Downloads\nana -> C:\Users\user\Downloads\nana.zip (125 -> 120 -> 196)
+[2026-05-05 01:00:55] VERSION_SNAPSHOT: C:\Users\user\Downloads\nana -> .versions\C__Users__user__Downloads__nana_20260505_010055_458562.txt
+[2026-05-05 01:00:55] SAVE_FILE: C:\Users\user\Downloads\nana
+[2026-05-05 01:01:51] RECOVERY_DISCARDED
+[2026-05-05 01:01:56] OPEN_FILE_START: C:\Users\user\Downloads\nana
+[2026-05-05 01:01:56] SWITCH_TAB: C:\Users\user\Downloads\nana
+[2026-05-05 01:01:56] OPEN_FILE: C:\Users\user\Downloads\nana
+[2026-05-05 01:01:59] COMPRESS_FILE: C:\Users\user\Downloads\nana -> C:\Users\user\Downloads\nana.zip (4953 -> 4718 -> 226)
+[2026-05-05 01:05:24] COMPRESS_FILE: C:\Users\user\Downloads\nana -> C:\Users\user\Downloads\nana.zip (4953 -> 4718 -> 226)
+[2026-05-05 01:07:58] RECOVERY_DISCARDED
+[2026-05-05 01:08:09] OPEN_FILE_START: C:\Users\user\Downloads\nana
+[2026-05-05 01:08:09] SWITCH_TAB: C:\Users\user\Downloads\nana
+[2026-05-05 01:08:09] OPEN_FILE: C:\Users\user\Downloads\nana
+[2026-05-05 01:08:13] COMPRESS_FILE: C:\Users\user\Downloads\nana -> C:\Users\user\Downloads\nana_compressed.zip (4953 -> 4718 -> 248)
