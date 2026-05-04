@@ -4,6 +4,7 @@ from tkinter import colorchooser
 from tkinter import ttk
 from analytics import AnalyticsManager
 from autosave import AutosaveManager
+from code_runner import CodeRunner
 from compression import CompressionManager
 from explorer import SidebarExplorer
 from fileops import FileOperations
@@ -26,6 +27,7 @@ class TextEditor:
         self.tab_manager = None
         self.explorer = None
         self.autosave_manager = None
+        self.code_runner = None
         self.compression_manager = None
         self.fileops = None
         self.lifo = None
@@ -134,6 +136,7 @@ class TextEditor:
         self.memory = MemoryManager(self.logger)
         self.tab_manager = TabManager(self)
         self.autosave_manager = AutosaveManager(self)
+        self.code_runner = CodeRunner(self)
         self.compression_manager = CompressionManager(self)
         self.fileops = FileOperations(self)
         self.lifo = LifoManager(self)
@@ -155,6 +158,7 @@ class TextEditor:
         self.root.bind("<Control-b>", self.bold_event)
         self.root.bind("<Control-i>", self.italic_event)
         self.root.bind("<Control-u>", self.underline_event)
+        self.root.bind("<F5>", self.run_python_event)
 
         # menu
         self.menu = tk.Menu(root)
@@ -189,6 +193,13 @@ class TextEditor:
         self.version_menu.add_command(
             label="Restore Version",
             command=self.version_control.show_restore_window
+        )
+
+        self.run_menu = tk.Menu(self.menu, tearoff=0)
+        self.menu.add_cascade(label="Run", menu=self.run_menu)
+        self.run_menu.add_command(
+            label="Run Python",
+            command=self.code_runner.run_python_code
         )
 
         # view
@@ -269,6 +280,7 @@ class TextEditor:
             self.file_menu,
             self.edit_menu,
             self.version_menu,
+            self.run_menu,
             self.view_menu
         ):
             menu.config(
@@ -340,6 +352,10 @@ class TextEditor:
 
     def save_event(self, event=None):
         self.fileops.save_file()
+        return "break"
+
+    def run_python_event(self, event=None):
+        self.code_runner.run_python_code()
         return "break"
 
     def focus_text_area(self, event=None):
