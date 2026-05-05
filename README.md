@@ -20,20 +20,19 @@ Text Monkey is a Python Tkinter text editor built to demonstrate core Operating 
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-| `Ctrl + S` | Save file |
-| `Ctrl + W` | Close current tab |
-| `Ctrl + Z` | Undo |
-| `Ctrl + Y` | Redo |
-| `Ctrl + F` | Search |
-| `Ctrl + C` | Copy |
-| `Ctrl + V` | Paste |
-| `Ctrl + X` | Cut |
-| `Ctrl + A` | Select all |
-| `Ctrl + B` | Bold |
-| `Ctrl + I` | Italic |
-| `Ctrl + U` | Underline |
-| `F5`       | Run Python code |
+| Shortcut   | Action          |
+| `Ctrl + S` | Save file       |
+| `Ctrl + Z` | Undo            |
+| `Ctrl + Y` | Redo            |
+| `Ctrl + F` | Search          |
+| `Ctrl + C` | Copy            |
+| `Ctrl + V` | Paste           |
+| `Ctrl + X` | Cut             |
+| `Ctrl + A` | Select all      |
+| `Ctrl + B` | Bold            |
+| `Ctrl + I` | Italic          |
+| `Ctrl + U` | Underline       |
+
 
 ## Features
 
@@ -100,6 +99,7 @@ Text Monkey is a Python Tkinter text editor built to demonstrate core Operating 
 | Process Management| Python runner uses `subprocess` |
 | Dynamic Loading   | Plugins loaded with `importlib` |
 
+
 ## Technologies Used
 
 - Python
@@ -124,4 +124,3 @@ Text Monkey is a Python Tkinter text editor built to demonstrate core Operating 
 Run the main application file:
  
 python main.py
-
