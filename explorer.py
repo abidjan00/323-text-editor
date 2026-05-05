@@ -32,13 +32,6 @@ class SidebarExplorer:
         )
         self.up_button.pack(side="right")
 
-        self.refresh_button = tk.Button(
-            self.sidebar_header,
-            text="Refresh",
-            command=self.refresh
-        )
-        self.refresh_button.pack(side="right")
-
         self.file_listbox = tk.Listbox(self.sidebar_frame, activestyle="none")
         self.file_listbox.pack(side="left", fill="both", expand=True)
         self.file_listbox.bind("<Double-Button-1>", self.open_selected_file)
@@ -128,15 +121,6 @@ class SidebarExplorer:
             highlightthickness=2,
             highlightbackground=colors["border"],
             font=("Consolas", 9)
-        )
-        self.refresh_button.config(
-            bg=colors["button"],
-            fg=colors["text"],
-            activebackground=colors["field"],
-            activeforeground=colors["text"],
-            relief=tk.RIDGE,
-            bd=2,
-            font=("Consolas", 8, "bold")
         )
         self.up_button.config(
             bg=colors["button"],
