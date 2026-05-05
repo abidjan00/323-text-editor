@@ -89,18 +89,18 @@ https://www.youtube.com/watch?v=JPm6HPtg2Rk
 
 ## Operating System Concepts Used
 
-| OS Concept        | Project Usage |
-| File Management   | Open, save, rename, delete, browse files |
-| Thread Management | Background file open/save operations |
-| Memory Management | Dictionary-based 5-file buffer |
-| FIFO Replacement  | Oldest cached file removed first |
-| System Logging    | Timestamped `log.txt` action records |
-| Recovery System   | Autosave file and restore prompt |
-| Storage Management| ZIP compression and text optimization |
-| Version Control   | File snapshots and restore system |
-| Process Management| Python runner uses `subprocess` |
-| Dynamic Loading   | Plugins loaded with `importlib` |
+OS Concepts Used in This Project
 
+File Management: create, open, save, rename, delete, browse files
+Thread Management: background open/save operations
+Memory Management: dictionary-based recent file buffer
+FIFO Replacement: oldest cached file removed first
+System Logging: timestamped action records in log.txt
+Recovery System: autosave and restore prompt
+Storage Management: ZIP compression
+Version Control: file snapshots and restore
+Process Management: Python runner using subprocess
+Dynamic Loading: plugin loading using importlib
 
 ## Technologies Used
 
