@@ -91,16 +91,16 @@ https://www.youtube.com/watch?v=JPm6HPtg2Rk
 
 OS Concepts Used in This Project
 
-File Management: create, open, save, rename, delete, browse files
-Thread Management: background open/save operations
-Memory Management: dictionary-based recent file buffer
-FIFO Replacement: oldest cached file removed first
-System Logging: timestamped action records in log.txt
-Recovery System: autosave and restore prompt
-Storage Management: ZIP compression
-Version Control: file snapshots and restore
-Process Management: Python runner using subprocess
-Dynamic Loading: plugin loading using importlib
+- File Management: create, open, save, rename, delete, browse files
+- Thread Management: background open/save operations
+- Memory Management: dictionary-based recent file buffer
+- FIFO Replacement: oldest cached file removed first
+- System Logging: timestamped action records in log.txt
+- Recovery System: autosave and restore prompt
+- Storage Management: ZIP compression
+- Version Control: file snapshots and restore
+- Process Management: Python runner using subprocess
+- Dynamic Loading: plugin loading using importlib
 
 ## Technologies Used
 
