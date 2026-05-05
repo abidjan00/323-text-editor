@@ -45,10 +45,8 @@ class LifoManager:
         if not self.editor.redo_stack:
             return
 
-        current = self.editor.get_editor_content()
-        self.editor.undo_stack.append(current)
-
         next_state = self.editor.redo_stack.pop()
+        self.editor.undo_stack.append(next_state)
 
         self.editor.text_area.delete("1.0", tk.END)
         self.editor.text_area.insert(tk.END, next_state)
