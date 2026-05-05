@@ -2,10 +2,6 @@
 
 Text Monkey is a Python Tkinter text editor built to demonstrate core Operating System concepts through a desktop application. It includes file handling, memory buffering, logging, threading, autosave recovery, version snapshots, compression, plugin loading, and a built-in Python runner.
 
-## Screenshots
-
-![Text Monkey Screenshot](images/Screenshot%202026-05-05%20142057.png)
-
 ## Key Highlights
 
 1. File management with open, save, rename, and delete
@@ -127,3 +123,7 @@ Text Monkey is a Python Tkinter text editor built to demonstrate core Operating 
 Run the main application file:
  
 python main.py
+
+## UI
+
+![Text Monkey Screenshot](images/Screenshot%202026-05-05%20142057.png)
